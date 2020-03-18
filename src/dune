@@ -1,0 +1,4 @@
+(library
+    (name EditorInput)
+    (public_name editor-input)
+    (preprocess (pps ppx_deriving.show)))

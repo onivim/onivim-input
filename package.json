@@ -1,0 +1,27 @@
+{
+  "name": "editor-input",
+  "version": "0.1.0",
+  "description": "Editor Input Handling",
+  "license": "MIT",
+  "scripts": {
+    "format": "esy dune build @fmt --auto-promote"
+  },
+  "esy": {
+    "build": ["refmterr dune build -p editor-core-types"],
+    "buildsInSource": "_build",
+    "install": [
+        "esy-installer editor-core-types.install"
+    ]
+  },
+  "dependencies": {
+    "@opam/dune": "*",
+    "@esy-ocaml/reason": "^3.5.2",
+    "refmterr": "*",
+    "@opam/ppx_deriving": ">=4.4",
+    "ocaml": "^4.7.0"
+  },
+  "devDependencies": {
+    "ocaml": "^4.8.0",
+    "@opam/ocaml-lsp-server": "github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#04733ed"
+  }
+}

@@ -1,0 +1,14 @@
+(library
+    (name EditorCoreTypesTest)
+    (public_name editor-core-types-test.lib)
+    (flags (:standard (-w -39)))
+    (ocamlopt_flags -linkall -g)
+    (libraries editor-core-types rely.lib)
+    (modules (:standard \ TestRunner)))
+
+(executable
+  (package editor-core-types-test)
+  (name TestRunner)
+  (public_name TestRunner)
+  (libraries editor-core-types-test.lib)
+  (modules TestRunner))
