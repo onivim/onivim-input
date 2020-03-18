@@ -1,6 +1,5 @@
 open TestFramework;
-open Oni_Core;
-open Oni_Core.Input2;
+open EditorInput;
 
 let aKeyNoModifiers: key = {
   scancode: 101,
@@ -23,12 +22,12 @@ let cKeyNoModifiers: key = {
   text: "c",
 };
 
-describe("Input 2", ({describe, _}) => {
+describe("EditorInput", ({describe, _}) => {
   describe("flush", ({test, _}) => {
     test("simple sequence", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)],
              _ => true,
              "payloadAB",
@@ -36,17 +35,17 @@ describe("Input 2", ({describe, _}) => {
 
       let (bindings, _id) =
         bindings
-        |> Input2.addBinding(
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none)],
              _ => true,
              "payloadA",
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
-      let (bindings, effects) = Input2.flush(bindings);
+      let (bindings, effects) = EditorInput.flush(bindings);
 
       expect.equal(effects, [Execute("payloadA")]);
     })
@@ -54,42 +53,42 @@ describe("Input 2", ({describe, _}) => {
   describe("sequences", ({test, _}) => {
     test("simple sequence", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)],
              _ => true,
              "payload1",
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
-      let (bindings, effects) = Input2.keyDown(bKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload1")]);
     });
     test("same key in a sequence", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none), Keycode(1, Modifiers.none)],
              _ => true,
              "payloadAA",
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAA")]);
     });
     test("partial match with another match", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none), Keycode(3, Modifiers.none)],
              _ => true,
              "payloadAC",
@@ -97,28 +96,28 @@ describe("Input 2", ({describe, _}) => {
 
       let (bindings, _id) =
         bindings
-        |> Input2.addBinding(
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none)],
              _ => true,
              "payloadA",
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadA")]);
 
-      let (_bindings, effects) = Input2.keyDown(cKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(cKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAC")]);
     });
     test("partial match with unhandled", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none), Keycode(3, Modifiers.none)],
              _ => true,
              "payloadAC",
@@ -126,17 +125,17 @@ describe("Input 2", ({describe, _}) => {
 
       let (bindings, _id) =
         bindings
-        |> Input2.addBinding(
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none)],
              _ => true,
              "payloadA",
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
-      let (bindings, effects) = Input2.keyDown(bKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(bKeyNoModifiers, bindings);
 
       expect.equal(
         effects,
@@ -147,21 +146,21 @@ describe("Input 2", ({describe, _}) => {
   describe("key matching", ({test, _}) => {
     test("matches keycode", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addBinding(
+        EditorInput.empty
+        |> EditorInput.addBinding(
              [Keycode(1, Modifiers.none)],
              _ => true,
              "payload1",
            );
 
-      let (_bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload1")]);
     });
     test("key with no matches is unhandled", ({expect}) => {
-      let bindings = Input2.empty;
+      let bindings = EditorInput.empty;
 
-      let (_bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
@@ -169,43 +168,43 @@ describe("Input 2", ({describe, _}) => {
   describe("remapping", ({test, _}) => {
     test("unhandled, single key remap", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addMapping(
+        EditorInput.empty
+        |> EditorInput.addMapping(
              [Keycode(1, Modifiers.none)],
              _ => true,
              [bKeyNoModifiers],
            );
 
-      let (_bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(bKeyNoModifiers)]);
     });
 
     test("unhandled, sequence remap", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addMapping(
+        EditorInput.empty
+        |> EditorInput.addMapping(
              [Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)],
              _ => true,
              [cKeyNoModifiers],
            );
 
-      let (bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
       expect.equal(effects, []);
-      let (_bindings, effects) = Input2.keyDown(bKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(cKeyNoModifiers)]);
     });
     /*test("unhandled, multiple keys", ({expect}) => {
         let (bindings, _id) =
-          Input2.empty
-          |> Input2.addMapping(
+          EditorInput.empty
+          |> EditorInput.addMapping(
                [Keycode(1, Modifiers.none)],
                _ => true,
                [bKeyNoModifiers, cKeyNoModifiers],
              );
 
-        let (_bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+        let (_bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
         expect.equal(effects, [
           Unhandled(cKeyNoModifiers),
@@ -213,21 +212,21 @@ describe("Input 2", ({describe, _}) => {
       });*/
     test("with payload", ({expect}) => {
       let (bindings, _id) =
-        Input2.empty
-        |> Input2.addMapping(
+        EditorInput.empty
+        |> EditorInput.addMapping(
              [Keycode(1, Modifiers.none)],
              _ => true,
              [bKeyNoModifiers],
            );
       let (bindings, _id) =
         bindings
-        |> Input2.addBinding(
+        |> EditorInput.addBinding(
              [Keycode(2, Modifiers.none)],
              _ => true,
              "payload2",
            );
 
-      let (_bindings, effects) = Input2.keyDown(aKeyNoModifiers, bindings);
+      let (_bindings, effects) = EditorInput.keyDown(aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload2")]);
     });

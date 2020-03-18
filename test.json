@@ -1,0 +1,16 @@
+{
+  "source": "./package.json",
+  "scripts": {
+    "run": "esy '@test' x TestRunner"
+  },
+  "override": {
+	  "build": ["dune build -p editor-input,editor-input-test -j4"],
+	  "dependencies": {
+		  "@reason-native/rely": "1.3.1"
+	  },
+	  "install": [
+		  "esy-installer editor-input.install",
+		  "esy-installer editor-input-test.install"
+		]
+  }
+}

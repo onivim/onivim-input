@@ -7,10 +7,10 @@
     "format": "esy dune build @fmt --auto-promote"
   },
   "esy": {
-    "build": ["refmterr dune build -p editor-core-types"],
+    "build": ["refmterr dune build -p editor-input"],
     "buildsInSource": "_build",
     "install": [
-        "esy-installer editor-core-types.install"
+        "esy-installer editor-input.install"
     ]
   },
   "dependencies": {

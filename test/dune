@@ -1,14 +1,14 @@
 (library
-    (name EditorCoreTypesTest)
-    (public_name editor-core-types-test.lib)
+    (name EditorInputTest)
+    (public_name editor-input-test)
     (flags (:standard (-w -39)))
     (ocamlopt_flags -linkall -g)
-    (libraries editor-core-types rely.lib)
+    (libraries editor-input rely.lib)
     (modules (:standard \ TestRunner)))
 
 (executable
-  (package editor-core-types-test)
+  (package editor-input-test)
   (name TestRunner)
   (public_name TestRunner)
-  (libraries editor-core-types-test.lib)
+  (libraries editor-input-test)
   (modules TestRunner))

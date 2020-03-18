@@ -1,0 +1,1 @@
+EditorInputTest.TestFramework.cli();
