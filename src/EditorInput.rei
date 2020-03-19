@@ -1,8 +1,3 @@
-type payload = string;
-type context = bool;
-
-type t;
-
 module Modifiers: {
   type t = {
     control: bool,
@@ -41,17 +36,30 @@ type key = {
   text: string,
 };
 
-let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, int);
-let addMapping:
-  (Matcher.sequence, context => bool, list(key), t) => (t, int);
-//let removeBinding: (t, int) => t;
+module type Input = {
+  type payload;
+  type context;
 
-type effects =
-  | Execute(payload)
-  | Unhandled(key);
+  type t;
 
-let keyDown: (key, t) => (t, list(effects));
-let keyUp: (key, t) => (t, list(effects));
-let flush: t => (t, list(effects));
+  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, int);
+  let addMapping:
+    (Matcher.sequence, context => bool, list(key), t) => (t, int);
 
-let empty: t;
+  type effects =
+    | Execute(payload)
+    | Unhandled(key);
+
+  let keyDown: (key, t) => (t, list(effects));
+  let keyUp: (key, t) => (t, list(effects));
+  let flush: t => (t, list(effects));
+
+  let empty: t;
+};
+
+module Make:
+  (Context: {
+     type payload;
+     type context;
+   }) =>
+   Input with type payload = Context.payload and type context = Context.context;

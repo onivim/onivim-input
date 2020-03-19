@@ -1,7 +1,3 @@
-// TODO: Functorize
-type payload = string;
-type context = bool;
-
 module Modifiers = Modifiers;
 module Matcher = Matcher;
 
@@ -12,182 +8,211 @@ type key = {
   text: string,
 };
 
-type effects =
-  | Execute(payload)
-  | Unhandled(key);
+module type Input = {
+  type payload;
+  type context;
 
-type action =
-  | Dispatch(payload)
-  | Remap(list(key));
+  type t;
 
-type binding = {
-  id: int,
-  sequence: Matcher.sequence,
-  action,
-  enabled: context => bool,
+  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, int);
+  let addMapping:
+    (Matcher.sequence, context => bool, list(key), t) => (t, int);
+
+  type effects =
+    | Execute(payload)
+    | Unhandled(key);
+
+  let keyDown: (key, t) => (t, list(effects));
+  let keyUp: (key, t) => (t, list(effects));
+  let flush: t => (t, list(effects));
+
+  let empty: t;
 };
 
-type t = {
-  nextId: int,
-  allBindings: list(binding),
-  keys: list(key),
-};
+module Make = (Config: {
+                 type payload;
+                 type context;
+               }) => {
+  type payload = Config.payload;
+  type context = Config.context;
 
-let keyMatches = (keyMatcher, key) => {
-  Matcher.(
-    {
-      switch (keyMatcher) {
-      | Scancode(scancode, mods) =>
-        key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
-      | Keycode(keycode, mods) =>
-        key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
-      };
-    }
-  );
-};
+  type effects =
+    | Execute(payload)
+    | Unhandled(key);
 
-let applyKeyToBinding = (key, binding) => {
-  switch (binding.sequence) {
-  | [hd, ...tail] when keyMatches(hd, key) =>
-    Some({...binding, sequence: tail})
-  | [] => None
-  | _ => None
+  type action =
+    | Dispatch(payload)
+    | Remap(list(key));
+
+  type binding = {
+    id: int,
+    sequence: Matcher.sequence,
+    action,
+    enabled: context => bool,
   };
-};
 
-let applyKeyToBindings = (key, bindings) => {
-  List.filter_map(applyKeyToBinding(key), bindings);
-};
+  type t = {
+    nextId: int,
+    allBindings: list(binding),
+    keys: list(key),
+  };
 
-let applyKeysToBindings = (keys, bindings) => {
-  List.fold_left(
-    (acc, curr) => {applyKeyToBindings(curr, acc)},
-    bindings,
-    keys,
-  );
-};
+  let keyMatches = (keyMatcher, key) => {
+    Matcher.(
+      {
+        switch (keyMatcher) {
+        | Scancode(scancode, mods) =>
+          key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
+        | Keycode(keycode, mods) =>
+          key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+        };
+      }
+    );
+  };
 
-let addBinding = (sequence, enabled, payload, bindings) => {
-  let {nextId, allBindings, _} = bindings;
-  let allBindings = [
-    {id: nextId, sequence, action: Dispatch(payload), enabled},
-    ...allBindings,
-  ];
+  let applyKeyToBinding = (key, binding) => {
+    switch (binding.sequence) {
+    | [hd, ...tail] when keyMatches(hd, key) =>
+      Some({...binding, sequence: tail})
+    | [] => None
+    | _ => None
+    };
+  };
 
-  let newBindings = {...bindings, allBindings, nextId: nextId + 1};
-  (newBindings, nextId);
-};
+  let applyKeyToBindings = (key, bindings) => {
+    List.filter_map(applyKeyToBinding(key), bindings);
+  };
 
-let addMapping = (sequence, enabled, keys, bindings) => {
-  let {nextId, allBindings, _} = bindings;
-  let allBindings = [
-    {id: nextId, sequence, action: Remap(keys), enabled},
-    ...allBindings,
-  ];
+  let applyKeysToBindings = (keys, bindings) => {
+    List.fold_left(
+      (acc, curr) => {applyKeyToBindings(curr, acc)},
+      bindings,
+      keys,
+    );
+  };
 
-  let newBindings = {...bindings, allBindings, nextId: nextId + 1};
-  (newBindings, nextId);
-};
+  let addBinding = (sequence, enabled, payload, bindings) => {
+    let {nextId, allBindings, _} = bindings;
+    let allBindings = [
+      {id: nextId, sequence, action: Dispatch(payload), enabled},
+      ...allBindings,
+    ];
 
-let reset = (~keys=[], bindings) => {...bindings, keys};
+    let newBindings = {...bindings, allBindings, nextId: nextId + 1};
+    (newBindings, nextId);
+  };
 
-let getReadyBindings = bindings => {
-  let filter = binding => binding.sequence == [];
+  let addMapping = (sequence, enabled, keys, bindings) => {
+    let {nextId, allBindings, _} = bindings;
+    let allBindings = [
+      {id: nextId, sequence, action: Remap(keys), enabled},
+      ...allBindings,
+    ];
 
-  bindings |> List.filter(filter);
-};
+    let newBindings = {...bindings, allBindings, nextId: nextId + 1};
+    (newBindings, nextId);
+  };
 
-let flush = bindings => {
-  //let allBindings = bindings.allBindings;
-  let allKeys = bindings.keys;
+  let reset = (~keys=[], bindings) => {...bindings, keys};
 
-  let rec loop = (flush, revKeys, remainingKeys, effects) => {
+  let getReadyBindings = bindings => {
+    let filter = binding => binding.sequence == [];
+
+    bindings |> List.filter(filter);
+  };
+
+  let flush = bindings => {
+    //let allBindings = bindings.allBindings;
+    let allKeys = bindings.keys;
+
+    let rec loop = (flush, revKeys, remainingKeys, effects) => {
+      let candidateBindings =
+        applyKeysToBindings(revKeys |> List.rev, bindings.allBindings);
+      let readyBindings = getReadyBindings(candidateBindings);
+      let readyBindingCount = List.length(readyBindings);
+      let candidateBindingCount = List.length(candidateBindings);
+
+      let potentialBindingCount = candidateBindingCount - readyBindingCount;
+
+      switch (List.nth_opt(readyBindings, 0)) {
+      | Some(binding) =>
+        if (flush || potentialBindingCount == 0) {
+          switch (binding.action) {
+          | Dispatch(payload) => (
+              remainingKeys,
+              [Execute(payload), ...effects],
+            )
+          | Remap(keys) =>
+            loop(
+              flush,
+              List.append(List.rev(keys), revKeys),
+              remainingKeys,
+              effects,
+            )
+          };
+        } else {
+          (List.append(revKeys, remainingKeys), effects);
+        }
+      // Queue keys -
+      | None when potentialBindingCount > 0 => (
+          // We have more bindings available, so just stash our keys and quit
+          List.append(revKeys, remainingKeys),
+          effects,
+        )
+      // No candidate bindings... try removing a key and processing bindings
+      | None =>
+        switch (revKeys) {
+        | [] =>
+          // No keys left, we're done here
+          (remainingKeys, effects)
+        | [latestKey] =>
+          // At the last key... if we got here, we couldn't find any match for this key
+          ([], [Unhandled(latestKey), ...effects])
+        | [latestKey, ...otherKeys] =>
+          // Try a subset of keys
+          loop(flush, otherKeys, [latestKey, ...remainingKeys], effects)
+        }
+      };
+    };
+
+    let (remainingKeys, effects) = loop(true, allKeys, [], []);
+
+    let (remainingKeys, effects) = loop(false, remainingKeys, [], effects);
+
+    let keys = remainingKeys;
+    (reset(~keys, bindings), effects);
+  };
+
+  let keyDown = (key, bindings) => {
+    let originalKeys = bindings.keys;
+    let keys = [key, ...bindings.keys];
+
     let candidateBindings =
-      applyKeysToBindings(revKeys |> List.rev, bindings.allBindings);
+      applyKeysToBindings(keys |> List.rev, bindings.allBindings);
+
     let readyBindings = getReadyBindings(candidateBindings);
     let readyBindingCount = List.length(readyBindings);
     let candidateBindingCount = List.length(candidateBindings);
 
     let potentialBindingCount = candidateBindingCount - readyBindingCount;
 
-    switch (List.nth_opt(readyBindings, 0)) {
-    | Some(binding) =>
-      if (flush || potentialBindingCount == 0) {
+    if (potentialBindingCount > 0) {
+      ({...bindings, keys}, []);
+    } else {
+      switch (List.nth_opt(readyBindings, 0)) {
+      | Some(binding) =>
         switch (binding.action) {
-        | Dispatch(payload) => (
-            remainingKeys,
-            [Execute(payload), ...effects],
-          )
-        | Remap(keys) =>
-          loop(
-            flush,
-            List.append(List.rev(keys), revKeys),
-            remainingKeys,
-            effects,
-          )
-        };
-      } else {
-        (List.append(revKeys, remainingKeys), effects);
-      }
-    // Queue keys -
-    | None when potentialBindingCount > 0 => (
-        // We have more bindings available, so just stash our keys and quit
-        List.append(revKeys, remainingKeys),
-        effects,
-      )
-    // No candidate bindings... try removing a key and processing bindings
-    | None =>
-      switch (revKeys) {
-      | [] =>
-        // No keys left, we're done here
-        (remainingKeys, effects)
-      | [latestKey] =>
-        // At the last key... if we got here, we couldn't find any match for this key
-        ([], [Unhandled(latestKey), ...effects])
-      | [latestKey, ...otherKeys] =>
-        // Try a subset of keys
-        loop(flush, otherKeys, [latestKey, ...remainingKeys], effects)
-      }
+        | Dispatch(payload) => (reset(bindings), [Execute(payload)])
+        | Remap(remappedKeys) =>
+          let keys = List.append(originalKeys, remappedKeys);
+          flush({...bindings, keys});
+        }
+      | None => flush({...bindings, keys})
+      };
     };
   };
 
-  let (remainingKeys, effects) = loop(true, allKeys, [], []);
+  let keyUp = (_key, bindings) => (bindings, []);
 
-  let (remainingKeys, effects) = loop(false, remainingKeys, [], effects);
-
-  let keys = remainingKeys;
-  (reset(~keys, bindings), effects);
+  let empty = {nextId: 0, allBindings: [], keys: []};
 };
-
-let keyDown = (key, bindings) => {
-  let originalKeys = bindings.keys;
-  let keys = [key, ...bindings.keys];
-
-  let candidateBindings =
-    applyKeysToBindings(keys |> List.rev, bindings.allBindings);
-
-  let readyBindings = getReadyBindings(candidateBindings);
-  let readyBindingCount = List.length(readyBindings);
-  let candidateBindingCount = List.length(candidateBindings);
-
-  let potentialBindingCount = candidateBindingCount - readyBindingCount;
-
-  if (potentialBindingCount > 0) {
-    ({...bindings, keys}, []);
-  } else {
-    switch (List.nth_opt(readyBindings, 0)) {
-    | Some(binding) =>
-      switch (binding.action) {
-      | Dispatch(payload) => (reset(bindings), [Execute(payload)])
-      | Remap(remappedKeys) =>
-        let keys = List.append(originalKeys, remappedKeys);
-        flush({...bindings, keys});
-      }
-    | None => flush({...bindings, keys})
-    };
-  };
-};
-
-let keyUp = (_key, bindings) => (bindings, []);
-
-let empty = {nextId: 0, allBindings: [], keys: []};

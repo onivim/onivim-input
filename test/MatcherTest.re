@@ -68,7 +68,7 @@ describe("Matcher", ({describe, _}) => {
       expect.equal(
         result,
         Ok([Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)]),
-        );
+      );
 
       let result = defaultParse("<c-a> Ctrl+b");
       expect.equal(

@@ -5,8 +5,6 @@ type t =
 type sequence = list(t);
 
 let parse = (~getKeycode, ~getScancode, str) => {
-  let lexbuf = Lexing.from_string(str);
-
   let parse = lexbuf =>
     switch (Matcher_parser.main(Matcher_lexer.token, lexbuf)) {
     | exception Matcher_lexer.Error => Error("Error parsing binding: " ++ str)
