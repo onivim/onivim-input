@@ -22,9 +22,9 @@ module type Input = {
     | Execute(payload)
     | Unhandled(key);
 
-  let keyDown: (key, t) => (t, list(effects));
-  let keyUp: (key, t) => (t, list(effects));
-  let flush: t => (t, list(effects));
+  let keyDown: (~context: context, key, t) => (t, list(effects));
+  let keyUp: (~context: context, key, t) => (t, list(effects));
+  let flush: (~context: context, t) => (t, list(effects));
 
   let empty: t;
 };
@@ -115,20 +115,22 @@ module Make = (Config: {
 
   let reset = (~keys=[], bindings) => {...bindings, keys};
 
-  let getReadyBindings = bindings => {
+  let getReadyBindings = (~context, bindings) => {
     let filter = binding => binding.sequence == [];
 
-    bindings |> List.filter(filter);
+    let enabled = binding => binding.enabled(context);
+
+    bindings |> List.filter(enabled) |> List.filter(filter);
   };
 
-  let flush = bindings => {
+  let flush = (~context, bindings) => {
     //let allBindings = bindings.allBindings;
     let allKeys = bindings.keys;
 
     let rec loop = (flush, revKeys, remainingKeys, effects) => {
       let candidateBindings =
         applyKeysToBindings(revKeys |> List.rev, bindings.allBindings);
-      let readyBindings = getReadyBindings(candidateBindings);
+      let readyBindings = getReadyBindings(~context, candidateBindings);
       let readyBindingCount = List.length(readyBindings);
       let candidateBindingCount = List.length(candidateBindings);
 
@@ -183,14 +185,14 @@ module Make = (Config: {
     (reset(~keys, bindings), effects);
   };
 
-  let keyDown = (key, bindings) => {
+  let keyDown = (~context, key, bindings) => {
     let originalKeys = bindings.keys;
     let keys = [key, ...bindings.keys];
 
     let candidateBindings =
       applyKeysToBindings(keys |> List.rev, bindings.allBindings);
 
-    let readyBindings = getReadyBindings(candidateBindings);
+    let readyBindings = getReadyBindings(~context, candidateBindings);
     let readyBindingCount = List.length(readyBindings);
     let candidateBindingCount = List.length(candidateBindings);
 
@@ -205,14 +207,14 @@ module Make = (Config: {
         | Dispatch(payload) => (reset(bindings), [Execute(payload)])
         | Remap(remappedKeys) =>
           let keys = List.append(originalKeys, remappedKeys);
-          flush({...bindings, keys});
+          flush(~context, {...bindings, keys});
         }
-      | None => flush({...bindings, keys})
+      | None => flush(~context, {...bindings, keys})
       };
     };
   };
 
-  let keyUp = (_key, bindings) => (bindings, []);
+  let keyUp = (~context as _, _key, bindings) => (bindings, []);
 
   let empty = {nextId: 0, allBindings: [], keys: []};
 };

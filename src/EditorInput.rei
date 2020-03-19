@@ -50,9 +50,9 @@ module type Input = {
     | Execute(payload)
     | Unhandled(key);
 
-  let keyDown: (key, t) => (t, list(effects));
-  let keyUp: (key, t) => (t, list(effects));
-  let flush: t => (t, list(effects));
+  let keyDown: (~context: context, key, t) => (t, list(effects));
+  let keyUp: (~context: context, key, t) => (t, list(effects));
+  let flush: (~context: context, t) => (t, list(effects));
 
   let empty: t;
 };
