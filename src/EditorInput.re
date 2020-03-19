@@ -70,9 +70,9 @@ module Make = (Config: {
     );
   };
 
-  let applyKeyToBinding = (~context, key, binding) => {
+  let applyKeyToBinding = (~context, key, binding) =>
     if (!binding.enabled(context)) {
-      None
+      None;
     } else {
       switch (binding.sequence) {
       | [hd, ...tail] when keyMatches(hd, key) =>
@@ -80,8 +80,7 @@ module Make = (Config: {
       | [] => None
       | _ => None
       };
-    }
-  };
+    };
 
   let applyKeyToBindings = (~context, key, bindings) => {
     List.filter_map(applyKeyToBinding(~context, key), bindings);
@@ -119,11 +118,10 @@ module Make = (Config: {
 
   let reset = (~keys=[], bindings) => {...bindings, keys};
 
-  let getReadyBindings = (bindings) => {
+  let getReadyBindings = bindings => {
     let filter = binding => binding.sequence == [];
 
-    bindings
-    |> List.filter(filter);
+    bindings |> List.filter(filter);
   };
 
   let flush = (~context, bindings) => {
@@ -131,7 +129,11 @@ module Make = (Config: {
 
     let rec loop = (flush, revKeys, remainingKeys, effects) => {
       let candidateBindings =
-        applyKeysToBindings(~context, revKeys |> List.rev, bindings.allBindings);
+        applyKeysToBindings(
+          ~context,
+          revKeys |> List.rev,
+          bindings.allBindings,
+        );
       let readyBindings = getReadyBindings(candidateBindings);
       let readyBindingCount = List.length(readyBindings);
       let candidateBindingCount = List.length(candidateBindings);
