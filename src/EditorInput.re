@@ -3,6 +3,7 @@ type payload = string;
 type context = bool;
 
 module Modifiers = Modifiers;
+module Matcher = Matcher;
 
 type key = {
   scancode: int,
@@ -15,19 +16,13 @@ type effects =
   | Execute(payload)
   | Unhandled(key);
 
-type keyMatcher =
-  | Scancode(int, Modifiers.t)
-  | Keycode(int, Modifiers.t);
-
-type sequence = list(keyMatcher);
-
 type action =
   | Dispatch(payload)
   | Remap(list(key));
 
 type binding = {
   id: int,
-  sequence,
+  sequence: Matcher.sequence,
   action,
   enabled: context => bool,
 };
@@ -39,12 +34,16 @@ type t = {
 };
 
 let keyMatches = (keyMatcher, key) => {
-  switch (keyMatcher) {
-  | Scancode(scancode, mods) =>
-    key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
-  | Keycode(keycode, mods) =>
-    key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
-  };
+  Matcher.(
+    {
+      switch (keyMatcher) {
+      | Scancode(scancode, mods) =>
+        key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
+      | Keycode(keycode, mods) =>
+        key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+      };
+    }
+  );
 };
 
 let applyKeyToBinding = (key, binding) => {
