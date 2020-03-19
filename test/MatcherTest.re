@@ -39,8 +39,21 @@ describe("Matcher", ({describe, _}) => {
       let result = defaultParse("<S-a>");
       expect.equal(result, Ok([Keycode(1, modifiersShift)]));
     });
+    test("vscode bindings", ({expect}) => {
+      let result = defaultParse("Ctrl+a");
+      expect.equal(result, Ok([Keycode(1, modifiersControl)]));
+
+      let result = defaultParse("ctrl+a");
+      expect.equal(result, Ok([Keycode(1, modifiersControl)]));
+    });
     test("binding list", ({expect}) => {
       let result = defaultParse("ab");
+      expect.equal(
+        result,
+        Ok([Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)]),
+      );
+
+      let result = defaultParse("a b");
       expect.equal(
         result,
         Ok([Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)]),
@@ -55,6 +68,12 @@ describe("Matcher", ({describe, _}) => {
       expect.equal(
         result,
         Ok([Keycode(1, Modifiers.none), Keycode(2, Modifiers.none)]),
+        );
+
+      let result = defaultParse("<c-a> Ctrl+b");
+      expect.equal(
+        result,
+        Ok([Keycode(1, modifiersControl), Keycode(2, modifiersControl)]),
       );
     });
   })

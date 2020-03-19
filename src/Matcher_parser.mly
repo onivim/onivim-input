@@ -1,4 +1,4 @@
-%token <Matcher_internal.modifier> VIM_MODIFIER
+%token <Matcher_internal.modifier> MODIFIER
 %token <string> BINDING
 %token LT GT
 %token EOF
@@ -11,9 +11,9 @@ main:
 | phrase = list(expr) EOF { phrase }
 
 expr:
-| s = BINDING { (s, []) }
-| LT e = vim_binding GT { e }
+| LT e = binding GT { e }
+| s = binding { s }
 
-vim_binding:
-| modifiers = list(VIM_MODIFIER); binding = BINDING { (binding, modifiers) };
+binding:
+| modifiers = list(MODIFIER); binding = BINDING { (binding, modifiers) };
 
