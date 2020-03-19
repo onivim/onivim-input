@@ -161,7 +161,7 @@ describe("EditorInput", ({describe, _}) => {
   });
   describe("enabled / disabled", ({test, _}) => {
     let identity = context => context;
-    test("matches keycode", ({expect}) => {
+    test("unhandled when enabled function returns false", ({expect}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
@@ -176,11 +176,17 @@ describe("EditorInput", ({describe, _}) => {
       // Should be unhandled because the context function is [false]
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
-    test("key with no matches is unhandled", ({expect}) => {
-      let bindings = Input.empty;
+    test("key sequence is unhandled when context is false", ({expect}) => {
+      let (bindings, _id) =
+        Input.empty
+        |> Input.addBinding(
+             [Keycode(1, Modifiers.none), Keycode(3, Modifiers.none)],
+             identity,
+             "payloadAC",
+           );
 
-      let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+      let (bindings, effects) =
+        Input.keyDown(~context=false, aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
