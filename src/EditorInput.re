@@ -167,7 +167,6 @@ let flush = bindings => {
         // Try a subset of keys
         loop(flush, otherKeys, [latestKey, ...remainingKeys], effects)
       }
-    // TODO
     };
   };
 
