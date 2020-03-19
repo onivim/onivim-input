@@ -5,11 +5,11 @@ type t;
 
 module Modifiers: {
   type t = {
-      control: bool,
-      alt: bool,
-      shift: bool,
-      meta: bool,
-    };
+    control: bool,
+    alt: bool,
+    shift: bool,
+    meta: bool,
+  };
 
   let create: (~control: bool, ~alt: bool, ~shift: bool, ~meta: bool) => t;
 
@@ -26,8 +26,11 @@ module Matcher: {
   type sequence = list(t);
 
   let parse:
-    (~getKeycode: string => option(int), 
-    ~getScancode: string => option(int), string) =>
+    (
+      ~getKeycode: string => option(int),
+      ~getScancode: string => option(int),
+      string
+    ) =>
     result(sequence, string);
 };
 

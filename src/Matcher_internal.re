@@ -1,7 +1,7 @@
 type modifier =
-| Control
-| Shift
-| Alt
-| Meta;
+  | Control
+  | Shift
+  | Alt
+  | Meta;
 
 type t = (string, list(modifier));
