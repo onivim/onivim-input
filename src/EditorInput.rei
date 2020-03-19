@@ -4,8 +4,7 @@ type context = bool;
 type t;
 
 module Modifiers: {
-  type t =
-    pri {
+  type t = {
       control: bool,
       alt: bool,
       shift: bool,
@@ -27,7 +26,8 @@ module Matcher: {
   type sequence = list(t);
 
   let parse:
-    (~getKeycode: string => int, ~getScancode: string => int, string) =>
+    (~getKeycode: string => option(int), 
+    ~getScancode: string => option(int), string) =>
     result(sequence, string);
 };
 
