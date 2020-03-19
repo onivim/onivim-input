@@ -171,9 +171,10 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=false, aKeyNoModifiers, bindings);
 
-      expect.equal(effects, [Execute("payload1")]);
+      // Should be unhandled because the context function is [false]
+      expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
     test("key with no matches is unhandled", ({expect}) => {
       let bindings = Input.empty;

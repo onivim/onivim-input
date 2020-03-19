@@ -70,22 +70,26 @@ module Make = (Config: {
     );
   };
 
-  let applyKeyToBinding = (key, binding) => {
-    switch (binding.sequence) {
-    | [hd, ...tail] when keyMatches(hd, key) =>
-      Some({...binding, sequence: tail})
-    | [] => None
-    | _ => None
-    };
+  let applyKeyToBinding = (~context, key, binding) => {
+    if (!binding.enabled(context)) {
+      None
+    } else {
+      switch (binding.sequence) {
+      | [hd, ...tail] when keyMatches(hd, key) =>
+        Some({...binding, sequence: tail})
+      | [] => None
+      | _ => None
+      };
+    }
   };
 
-  let applyKeyToBindings = (key, bindings) => {
-    List.filter_map(applyKeyToBinding(key), bindings);
+  let applyKeyToBindings = (~context, key, bindings) => {
+    List.filter_map(applyKeyToBinding(~context, key), bindings);
   };
 
-  let applyKeysToBindings = (keys, bindings) => {
+  let applyKeysToBindings = (~context, keys, bindings) => {
     List.fold_left(
-      (acc, curr) => {applyKeyToBindings(curr, acc)},
+      (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
       bindings,
       keys,
     );
@@ -115,22 +119,20 @@ module Make = (Config: {
 
   let reset = (~keys=[], bindings) => {...bindings, keys};
 
-  let getReadyBindings = (~context, bindings) => {
+  let getReadyBindings = (bindings) => {
     let filter = binding => binding.sequence == [];
 
-    let enabled = binding => binding.enabled(context);
-
-    bindings |> List.filter(enabled) |> List.filter(filter);
+    bindings
+    |> List.filter(filter);
   };
 
   let flush = (~context, bindings) => {
-    //let allBindings = bindings.allBindings;
     let allKeys = bindings.keys;
 
     let rec loop = (flush, revKeys, remainingKeys, effects) => {
       let candidateBindings =
-        applyKeysToBindings(revKeys |> List.rev, bindings.allBindings);
-      let readyBindings = getReadyBindings(~context, candidateBindings);
+        applyKeysToBindings(~context, revKeys |> List.rev, bindings.allBindings);
+      let readyBindings = getReadyBindings(candidateBindings);
       let readyBindingCount = List.length(readyBindings);
       let candidateBindingCount = List.length(candidateBindings);
 
@@ -190,9 +192,9 @@ module Make = (Config: {
     let keys = [key, ...bindings.keys];
 
     let candidateBindings =
-      applyKeysToBindings(keys |> List.rev, bindings.allBindings);
+      applyKeysToBindings(~context, keys |> List.rev, bindings.allBindings);
 
-    let readyBindings = getReadyBindings(~context, candidateBindings);
+    let readyBindings = getReadyBindings(candidateBindings);
     let readyBindingCount = List.length(readyBindings);
     let candidateBindingCount = List.length(candidateBindings);
 
