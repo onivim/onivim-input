@@ -4,7 +4,12 @@ type context = bool;
 type t;
 
 module Modifiers: {
-  type t;
+  type t = pri {
+    control: bool,
+    alt: bool,
+    shift: bool,
+    meta: bool,
+  };
 
   let create: (~control: bool, ~alt: bool, ~shift: bool, ~meta: bool) => t;
 
