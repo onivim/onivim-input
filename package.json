@@ -18,7 +18,8 @@
     "@esy-ocaml/reason": "^3.5.2",
     "refmterr": "*",
     "@opam/ppx_deriving": ">=4.4",
-    "ocaml": "^4.7.0"
+    "ocaml": "^4.7.0",
+    "@opam/menhir": ">= 20170418.0.0"
   },
   "devDependencies": {
     "ocaml": "^4.8.0",
