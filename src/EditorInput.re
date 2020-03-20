@@ -238,9 +238,9 @@ module Make = (Config: {
     (reset(~keys, bindings), effects);
   };
 
-  let keyDown = (~context, key, bindings) => {
+  let handleKeyCore = (~context, gesture, bindings) => {
     let originalKeys = bindings.keys;
-    let keys = [Down(key), ...bindings.keys];
+    let keys = [gesture, ...bindings.keys];
 
     let candidateBindings =
       applyKeysToBindings(~context, keys |> List.rev, bindings.allBindings);
@@ -266,36 +266,15 @@ module Make = (Config: {
       | None => flush(~context, {...bindings, keys})
       };
     };
+  };
+
+  let keyDown = (~context, key, bindings) => {
+    handleKeyCore(~context, Down(key), bindings);
   };
 
   let keyUp = (~context, key, bindings) => {
-    let originalKeys = bindings.keys;
-    let keys = [Up(key), ...bindings.keys];
-
-    let candidateBindings =
-      applyKeysToBindings(~context, keys |> List.rev, bindings.allBindings);
-
-    let readyBindings = getReadyBindings(candidateBindings);
-    let readyBindingCount = List.length(readyBindings);
-    let candidateBindingCount = List.length(candidateBindings);
-
-    let potentialBindingCount = candidateBindingCount - readyBindingCount;
-
-    if (potentialBindingCount > 0) {
-      ({...bindings, keys}, []);
-    } else {
-      switch (List.nth_opt(readyBindings, 0)) {
-      | Some(binding) =>
-        switch (binding.action) {
-        | Dispatch(payload) => (reset(bindings), [Execute(payload)])
-        | Remap(remappedKeys) =>
-          let keys =
-            List.append(originalKeys, List.map(k => Down(k), remappedKeys));
-          flush(~context, {...bindings, keys});
-        }
-      | None => flush(~context, {...bindings, keys})
-      };
-    };
+    handleKeyCore(~context, Up(key), bindings);
   };
+
   let empty = {nextId: 0, allBindings: [], keys: []};
 };
