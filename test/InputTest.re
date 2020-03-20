@@ -105,6 +105,55 @@ describe("EditorInput", ({describe, _}) => {
 
       expect.equal(effects, [Execute("payloadAA")]);
     });
+    test("key up doesn't stop sequence", ({expect}) => {
+      let (bindings, _id) =
+        Input.empty
+        |> Input.addBinding(
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(2, Modifiers.none)),
+             ],
+             _ => true,
+             "payloadAB",
+           );
+
+      let (bindings, effects) =
+        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, []);
+
+      let (bindings, effects) =
+        Input.keyUp(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, []);
+
+      let (bindings, effects) =
+        Input.keyDown(~context=true, bKeyNoModifiers, bindings);
+
+      expect.equal(effects, [Execute("payloadAB")]);
+    });
+    test("sequence with keyups", ({expect}) => {
+      let (bindings, _id) =
+        Input.empty
+        |> Input.addBinding(
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keyup(Keycode(1, Modifiers.none)),
+             ],
+             _ => true,
+             "payloadA!A",
+           );
+
+      let (bindings, effects) =
+        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, []);
+
+      let (bindings, effects) =
+        Input.keyUp(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, [Execute("payloadA!A")]);
+    });
     test("partial match with another match", ({expect}) => {
       let (bindings, _id) =
         Input.empty
