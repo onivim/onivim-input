@@ -36,6 +36,7 @@ rule token = parse
  }
 (* Single keys *)
 | white { token lexbuf }
+| '!' { EXCLAMATION }
 | ['a' - 'z' 'A' - 'Z' '0'-'9']  as i
  { BINDING (String.make 1 (Char.lowercase_ascii i)) }
 | '<' { LT }

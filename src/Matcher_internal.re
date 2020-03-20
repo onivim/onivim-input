@@ -4,4 +4,8 @@ type modifier =
   | Alt
   | Meta;
 
-type t = (string, list(modifier));
+type activation =
+  | Keyup
+  | Keydown;
+
+type t = (activation, string, list(modifier));
