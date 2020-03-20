@@ -14,9 +14,12 @@ module Modifiers: {
 };
 
 module Matcher: {
-  type t =
+  type keyMatcher =
     | Scancode(int, Modifiers.t)
     | Keycode(int, Modifiers.t);
+
+  type t =
+  | Keydown(keyMatcher);
 
   type sequence = list(t);
 

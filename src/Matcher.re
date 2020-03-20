@@ -1,6 +1,9 @@
-type t =
+type keyMatcher =
   | Scancode(int, Modifiers.t)
   | Keycode(int, Modifiers.t);
+
+type t = 
+| Keydown(keyMatcher);
 
 type sequence = list(t);
 
@@ -34,7 +37,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
       let (key, mods) = parseResult;
       switch (getKeycode(key)) {
       | None => Error("Unrecognized key: " ++ key)
-      | Some(code) => Ok(Keycode(code, internalModsToMods(mods)))
+    | Some(code) => Ok(Keydown(Keycode(code, internalModsToMods(mods))))
       };
     };
 

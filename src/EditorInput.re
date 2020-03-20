@@ -61,9 +61,9 @@ module Make = (Config: {
     Matcher.(
       {
         switch (keyMatcher) {
-        | Scancode(scancode, mods) =>
+        | Keydown(Scancode(scancode, mods)) =>
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
-        | Keycode(keycode, mods) =>
+        | Keydown(Keycode(keycode, mods)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
         };
       }
