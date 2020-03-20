@@ -34,8 +34,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(2, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(2, Modifiers.none)),
+             ],
              _ => true,
              "payloadAB",
            );
@@ -63,8 +65,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(2, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(2, Modifiers.none)),
+             ],
              _ => true,
              "payload1",
            );
@@ -83,8 +87,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(1, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(1, Modifiers.none)),
+             ],
              _ => true,
              "payloadAA",
            );
@@ -103,8 +109,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(3, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(3, Modifiers.none)),
+             ],
              _ => true,
              "payloadAC",
            );
@@ -136,8 +144,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(3, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(3, Modifiers.none)),
+             ],
              _ => true,
              "payloadAC",
            );
@@ -185,8 +195,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(3, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(3, Modifiers.none)),
+             ],
              identity,
              "payloadAC",
            );
@@ -241,8 +253,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [Keydown(Keycode(1, Modifiers.none)),
-             Keydown(Keycode(2, Modifiers.none))],
+             [
+               Keydown(Keycode(1, Modifiers.none)),
+               Keydown(Keycode(2, Modifiers.none)),
+             ],
              _ => true,
              [cKeyNoModifiers],
            );

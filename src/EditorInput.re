@@ -65,6 +65,7 @@ module Make = (Config: {
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
         | Keydown(Keycode(keycode, mods)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+        | Keyup(_) => false
         };
       }
     );

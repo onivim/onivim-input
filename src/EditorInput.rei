@@ -19,7 +19,8 @@ module Matcher: {
     | Keycode(int, Modifiers.t);
 
   type t =
-  | Keydown(keyMatcher);
+    | Keydown(keyMatcher)
+    | Keyup(keyMatcher);
 
   type sequence = list(t);
 
