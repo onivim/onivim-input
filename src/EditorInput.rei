@@ -47,7 +47,6 @@ type key = {
   scancode: int,
   keycode: int,
   modifiers: Modifiers.t,
-  text: string,
 };
 
 module type Input = {
