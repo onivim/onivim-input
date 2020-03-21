@@ -298,6 +298,44 @@ describe("EditorInput", ({describe, _}) => {
       expect.equal(effects, [Unhandled(bKeyNoModifiers)]);
     });
 
+    test("2-step recursive mapping", ({expect}) => {
+      let (bindings, _id) =
+        Input.empty
+        |> Input.addMapping(
+             [Keydown(Keycode(1, Modifiers.none))],
+             _ => true,
+             [bKeyNoModifiers],
+           );
+
+      let (bindings, _id) =
+        bindings
+        |> Input.addMapping(
+             [Keydown(Keycode(2, Modifiers.none))],
+             _ => true,
+             [cKeyNoModifiers],
+           );
+
+      let (_bindings, effects) =
+        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, [Unhandled(cKeyNoModifiers)]);
+    });
+
+    test("recursive mapping doesn't hang", ({expect}) => {
+      let (bindings, _id) =
+        Input.empty
+        |> Input.addMapping(
+             [Keydown(Keycode(1, Modifiers.none))],
+             _ => true,
+             [aKeyNoModifiers],
+           );
+
+      let (_bindings, effects) =
+        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+
+      expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
+    });
+
     test("unhandled, sequence remap", ({expect}) => {
       let (bindings, _id) =
         Input.empty
