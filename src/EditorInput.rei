@@ -2,11 +2,10 @@ module Modifiers: {
   type t = {
     control: bool,
     alt: bool,
+    altGr: bool,
     shift: bool,
     meta: bool,
   };
-
-  let create: (~control: bool, ~alt: bool, ~shift: bool, ~meta: bool) => t;
 
   let none: t;
 
