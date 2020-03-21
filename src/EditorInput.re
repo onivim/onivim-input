@@ -182,7 +182,7 @@ module Make = (Config: {
   let flush = (~context, bindings) => {
     let allKeys = bindings.keys;
 
-    let rec loop = (flush, revKeys, remainingKeys, effects, iterationCount) => {
+    let rec loop = (~flush, revKeys, remainingKeys, effects, iterationCount) => {
       let candidateBindings =
         bindings.allBindings
         |> applyKeysToBindings(~context, revKeys |> List.rev);
@@ -211,7 +211,7 @@ module Make = (Config: {
             )
           | Remap(keys) =>
             let newKeys = keys |> List.map(k => Down(k)) |> List.rev;
-            loop(flush, newKeys, remainingKeys, effects, iterationCount + 1);
+            loop(~flush, newKeys, remainingKeys, effects, iterationCount + 1);
           };
         } else {
           (List.append(revKeys, remainingKeys), effects);
@@ -237,7 +237,7 @@ module Make = (Config: {
         | [latestKey, ...otherKeys] =>
           // Try a subset of keys
           loop(
-            flush,
+            ~flush,
             otherKeys,
             [latestKey, ...remainingKeys],
             effects,
@@ -247,10 +247,10 @@ module Make = (Config: {
       };
     };
 
-    let (remainingKeys, effects) = loop(true, allKeys, [], [], 0);
+    let (remainingKeys, effects) = loop(~flush=true, allKeys, [], [], 0);
 
     let (remainingKeys, effects) =
-      loop(false, remainingKeys, [], effects, 0);
+      loop(~flush=false, remainingKeys, [], effects, 0);
 
     let keys = remainingKeys;
     (reset(~keys, bindings), effects);
