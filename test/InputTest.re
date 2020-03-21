@@ -51,7 +51,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
@@ -73,15 +73,19 @@ describe("EditorInput", ({describe, _}) => {
              "payload1",
            );
 
-      let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+      expect.equal(Input.isPending(bindings), false);
 
+      let (bindings, effects) =
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
+
+      expect.equal(Input.isPending(bindings), true);
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, bKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload1")]);
+      expect.equal(Input.isPending(bindings), false);
     });
     test("same key in a sequence", ({expect}) => {
       let (bindings, _id) =
@@ -96,12 +100,12 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAA")]);
     });
@@ -118,17 +122,17 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyUp(~context=true, aKeyNoModifiers, bindings);
+        Input.keyUp(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, bKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAB")]);
     });
@@ -145,12 +149,12 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyUp(~context=true, aKeyNoModifiers, bindings);
+        Input.keyUp(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadA!A")]);
     });
@@ -175,17 +179,17 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadA")]);
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, cKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=cKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAC")]);
     });
@@ -210,12 +214,12 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, []);
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, bKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=bKeyNoModifiers, bindings);
 
       expect.equal(
         effects,
@@ -235,7 +239,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (_bindings, effects) =
-        Input.keyDown(~context=false, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=false, ~key=aKeyNoModifiers, bindings);
 
       // Should be unhandled because the context function is [false]
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
@@ -253,7 +257,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=false, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=false, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
@@ -269,7 +273,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload1")]);
     });
@@ -277,7 +281,7 @@ describe("EditorInput", ({describe, _}) => {
       let bindings = Input.empty;
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(aKeyNoModifiers)]);
     });
@@ -293,7 +297,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(bKeyNoModifiers)]);
     });
@@ -311,10 +315,10 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
       expect.equal(effects, []);
       let (_bindings, effects) =
-        Input.keyDown(~context=true, bKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Unhandled(cKeyNoModifiers)]);
     });
@@ -350,7 +354,7 @@ describe("EditorInput", ({describe, _}) => {
            );
 
       let (_bindings, effects) =
-        Input.keyDown(~context=true, aKeyNoModifiers, bindings);
+        Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payload2")]);
     });

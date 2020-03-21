@@ -14,19 +14,36 @@ module type Input = {
 
   type t;
 
-  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, int);
+  type uniqueId;
+
+  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
   let addMapping:
-    (Matcher.sequence, context => bool, list(key), t) => (t, int);
+    (Matcher.sequence, context => bool, list(key), t) => (t, uniqueId);
 
   type effects =
     | Execute(payload)
     | Unhandled(key);
 
-  let keyDown: (~context: context, key, t) => (t, list(effects));
-  let keyUp: (~context: context, key, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: key, t) => (t, list(effects));
+  let text: (~text: string, t) => (t, list(effects));
+  let keyUp: (~context: context, ~key: key, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));
 
+  let isPending: t => bool;
+
+  let concat: (t, t) => t;
+
   let empty: t;
+};
+
+module UniqueId = {
+  let nextId = ref(0); 
+
+  let get = () => {
+    let id = nextId^; 
+    incr(nextId);
+    id;
+  };
 };
 
 module Make = (Config: {
@@ -51,14 +68,20 @@ module Make = (Config: {
     enabled: context => bool,
   };
 
+  type uniqueId = int;
+
   type gesture =
     | Down(key)
     | Up(key);
 
   type t = {
-    nextId: int,
-    allBindings: list(binding),
+    bindings: list(binding),
     keys: list(gesture),
+  };
+
+  let concat = (first, second) => {
+      bindings: first.bindings @ second.bindings,
+      keys: [],
   };
 
   let keyMatches = (keyMatcher, key: gesture) => {
@@ -139,26 +162,28 @@ module Make = (Config: {
     bindingsWithKeyUp @ bindingsWithJustKeyDown;
   };
 
-  let addBinding = (sequence, enabled, payload, bindings) => {
-    let {nextId, allBindings, _} = bindings;
-    let allBindings = [
-      {id: nextId, sequence, action: Dispatch(payload), enabled},
-      ...allBindings,
+  let addBinding = (sequence, enabled, payload, keyBindings) => {
+    let {bindings, _} = keyBindings;
+    let id = UniqueId.get();
+    let bindings = [
+      {id, sequence, action: Dispatch(payload), enabled},
+      ...bindings,
     ];
 
-    let newBindings = {...bindings, allBindings, nextId: nextId + 1};
-    (newBindings, nextId);
+    let newBindings = {...keyBindings, bindings};
+    (newBindings, id);
   };
 
-  let addMapping = (sequence, enabled, keys, bindings) => {
-    let {nextId, allBindings, _} = bindings;
-    let allBindings = [
-      {id: nextId, sequence, action: Remap(keys), enabled},
-      ...allBindings,
+  let addMapping = (sequence, enabled, keys, keyBindings) => {
+    let {bindings, _} = keyBindings;
+    let id = UniqueId.get();
+    let bindings = [
+      {id, sequence, action: Remap(keys), enabled},
+      ...bindings,
     ];
 
-    let newBindings = {...bindings, allBindings, nextId: nextId + 1};
-    (newBindings, nextId);
+    let newBindings = {...keyBindings, bindings};
+    (newBindings, id);
   };
 
   let reset = (~keys=[], bindings) => {...bindings, keys};
@@ -177,7 +202,7 @@ module Make = (Config: {
         applyKeysToBindings(
           ~context,
           revKeys |> List.rev,
-          bindings.allBindings,
+          bindings.bindings,
         );
       let readyBindings = getReadyBindings(candidateBindings);
       let readyBindingCount = List.length(readyBindings);
@@ -243,7 +268,7 @@ module Make = (Config: {
     let keys = [gesture, ...bindings.keys];
 
     let candidateBindings =
-      applyKeysToBindings(~context, keys |> List.rev, bindings.allBindings);
+      applyKeysToBindings(~context, keys |> List.rev, bindings.bindings);
 
     let readyBindings = getReadyBindings(candidateBindings);
     let readyBindingCount = List.length(readyBindings);
@@ -268,13 +293,17 @@ module Make = (Config: {
     };
   };
 
-  let keyDown = (~context, key, bindings) => {
+  let isPending = ({keys, _}) => keys != [];
+
+  let keyDown = (~context, ~key, bindings) => {
     handleKeyCore(~context, Down(key), bindings);
   };
 
-  let keyUp = (~context, key, bindings) => {
+  let text = (~text, bindings) => (bindings, [])
+
+  let keyUp = (~context, ~key, bindings) => {
     handleKeyCore(~context, Up(key), bindings);
   };
 
-  let empty = {nextId: 0, allBindings: [], keys: []};
+  let empty = {bindings: [], keys: []};
 };

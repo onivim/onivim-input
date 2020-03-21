@@ -56,17 +56,32 @@ module type Input = {
 
   type t;
 
-  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, int);
+  type uniqueId;
+
+  let addBinding: (Matcher.sequence, context => bool, payload, t) => 
+    (t, uniqueId);
+
   let addMapping:
-    (Matcher.sequence, context => bool, list(key), t) => (t, int);
+    (Matcher.sequence, context => bool, list(key), t) => (
+    t, uniqueId
+    );
 
   type effects =
     | Execute(payload)
     | Unhandled(key);
 
-  let keyDown: (~context: context, key, t) => (t, list(effects));
-  let keyUp: (~context: context, key, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: key, t) => (t, list(effects));
+  let text: (~text: string, t) => (t, list(effects));
+  let keyUp: (~context: context, ~key: key, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));
+
+  /**
+  [isPending(bindings)] returns true if there is a potential
+  keybinding pending, false otherwise
+  */
+  let isPending: t => bool;
+
+  let concat: (t, t) => t;
 
   let empty: t;
 };

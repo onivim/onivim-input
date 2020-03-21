@@ -23,4 +23,10 @@ let none = {
   meta: false,
 };
 
-let equals = (_, _) => true;
+let equals = (mod1, mod2) => {
+  mod1.control == mod2.control
+  && mod1.alt == mod2.alt
+  && mod1.altGr == mod2.altGr
+  && mod1.shift == mod2.shift
+  && mod1.meta == mod2.meta;
+}
