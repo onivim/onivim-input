@@ -7,17 +7,6 @@ module Modifiers: {
     meta: bool,
   };
 
-  let create:
-    (
-      ~control: bool=?,
-      ~alt: bool=?,
-      ~altGr: bool=?,
-      ~shift: bool=?,
-      ~meta: bool=?,
-      unit
-    ) =>
-    t;
-
   let none: t;
 
   let equals: (t, t) => bool;

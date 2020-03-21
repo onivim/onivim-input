@@ -245,17 +245,36 @@ module Make = (Config: {
     text
     |> List.filter(textEntry => !Hashtbl.mem(hash, textEntry.keyDownId));
   }
+  
+  let isRemap = ({action, _}) =>
+    switch (action) {
+    | Dispatch(_) => false
+    | Remap(_) => true
+    };
+
+  module Constants = {
+    let maxRecursiveDepth = 10;
+  };
 
   let flush = (~context, bindings) => {
     let allKeys = bindings.keys;
 
-    let rec loop = (flush, revKeys, remainingText: list(textEntry), remainingKeys, effects) => {
+    let rec loop = (~flush, revKeys, remainingText: list(textEntry), remainingKeys, effects, iterationCount) => {
       let candidateBindings =
         applyKeysToBindings(
           ~context,
           revKeys |> List.rev,
           bindings.bindings,
         );
+
+      // If we've hit the recursion limit for remaps... filter out remaps
+      let candidateBindings =
+        if (iterationCount > Constants.maxRecursiveDepth) {
+          candidateBindings |> List.filter(binding => !isRemap(binding));
+        } else {
+          candidateBindings;
+        };
+
       let readyBindings = getReadyBindings(candidateBindings);
       let readyBindingCount = List.length(readyBindings);
       let candidateBindingCount = List.length(candidateBindings);
@@ -278,11 +297,12 @@ module Make = (Config: {
           | Remap(keys) =>
             let newKeys = keys |> List.map(k => Down(KeyDownId.get(), k)) |> List.rev;
             loop(
-              flush,
-              List.append(newKeys, revKeys),
+              ~flush,
+              newKeys,
               remainingText,
               remainingKeys,
               effects,
+              iterationCount + 1
             );
           };
         } else {
@@ -320,14 +340,14 @@ module Make = (Config: {
           ([], remainingText, effects)
         | [latestKey, ...otherKeys] =>
           // Try a subset of keys
-          loop(flush, otherKeys, remainingText, [latestKey, ...remainingKeys], effects)
+          loop(~flush, otherKeys, remainingText, [latestKey, ...remainingKeys], effects, iterationCount)
         }
       };
     };
 
-    let (remainingKeys, remainingText, effects) = loop(true, allKeys, bindings.text,[], []);
+    let (remainingKeys, remainingText, effects) = loop(~flush=true, allKeys, bindings.text,[], [], 0);
 
-    let (remainingKeys, remainingText, effects) = loop(false, remainingKeys, remainingText, [], effects);
+    let (remainingKeys, remainingText, effects) = loop(~flush=false, remainingKeys, remainingText, [], effects, 0);
 
     let keys = remainingKeys;
 
