@@ -22,6 +22,7 @@ module type Input = {
 
   type effects =
     | Execute(payload)
+    | Text(string)
     | Unhandled(key);
 
   let keyDown: (~context: context, ~key: key, t) => (t, list(effects));
@@ -55,6 +56,7 @@ module Make = (Config: {
 
   type effects =
     | Execute(payload)
+    | Text(string)
     | Unhandled(key);
 
   type action =
