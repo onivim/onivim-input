@@ -51,20 +51,29 @@ module Make = (Config: {
     enabled: context => bool,
   };
 
+  type gesture =
+    | Down(key)
+    | Up(key);
+
   type t = {
     nextId: int,
     allBindings: list(binding),
-    keys: list(key),
+    keys: list(gesture),
   };
 
-  let keyMatches = (keyMatcher, key) => {
+  let keyMatches = (keyMatcher, key: gesture) => {
     Matcher.(
       {
-        switch (keyMatcher) {
-        | Scancode(scancode, mods) =>
+        switch (keyMatcher, key) {
+        | (Keydown(Scancode(scancode, mods)), Down(key)) =>
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
-        | Keycode(keycode, mods) =>
+        | (Keydown(Keycode(keycode, mods)), Down(key)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+        | (Keyup(Scancode(scancode, mods)), Up(key)) =>
+          key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
+        | (Keyup(Keycode(keycode, mods)), Up(key)) =>
+          key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+        | _ => false
         };
       }
     );
@@ -87,11 +96,47 @@ module Make = (Config: {
   };
 
   let applyKeysToBindings = (~context, keys, bindings) => {
-    List.fold_left(
-      (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
-      bindings,
-      keys,
-    );
+    let bindingsWithKeyUp =
+      keys
+      |> List.fold_left(
+           (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
+           bindings,
+         );
+
+    let consumedBindings =
+      bindingsWithKeyUp
+      |> List.fold_left(
+           (acc, curr) => {
+             Hashtbl.add(acc, curr.id, true);
+             acc;
+           },
+           Hashtbl.create(16),
+         );
+
+    let unusedBindings =
+      bindings
+      |> List.filter(binding =>
+           Stdlib.Option.is_none(
+             Hashtbl.find_opt(consumedBindings, binding.id),
+           )
+         );
+
+    let onlyDownKeys =
+      keys
+      |> List.filter_map(
+           fun
+           | Down(key) => Some(Down(key))
+           | Up(key) => None,
+         );
+
+    let bindingsWithJustKeyDown =
+      onlyDownKeys
+      |> List.fold_left(
+           (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
+           unusedBindings,
+         );
+
+    bindingsWithKeyUp @ bindingsWithJustKeyDown;
   };
 
   let addBinding = (sequence, enabled, payload, bindings) => {
@@ -149,12 +194,13 @@ module Make = (Config: {
               [Execute(payload), ...effects],
             )
           | Remap(keys) =>
+            let newKeys = keys |> List.map(k => Down(k)) |> List.rev;
             loop(
               flush,
-              List.append(List.rev(keys), revKeys),
+              List.append(newKeys, revKeys),
               remainingKeys,
               effects,
-            )
+            );
           };
         } else {
           (List.append(revKeys, remainingKeys), effects);
@@ -171,9 +217,12 @@ module Make = (Config: {
         | [] =>
           // No keys left, we're done here
           (remainingKeys, effects)
-        | [latestKey] =>
+        | [Down(latestKey)] =>
           // At the last key... if we got here, we couldn't find any match for this key
           ([], [Unhandled(latestKey), ...effects])
+        | [Up(latestKey)] =>
+          // At the last key... if we got here, we couldn't find any match for this key
+          ([], effects)
         | [latestKey, ...otherKeys] =>
           // Try a subset of keys
           loop(flush, otherKeys, [latestKey, ...remainingKeys], effects)
@@ -189,9 +238,9 @@ module Make = (Config: {
     (reset(~keys, bindings), effects);
   };
 
-  let keyDown = (~context, key, bindings) => {
+  let handleKeyCore = (~context, gesture, bindings) => {
     let originalKeys = bindings.keys;
-    let keys = [key, ...bindings.keys];
+    let keys = [gesture, ...bindings.keys];
 
     let candidateBindings =
       applyKeysToBindings(~context, keys |> List.rev, bindings.allBindings);
@@ -210,7 +259,8 @@ module Make = (Config: {
         switch (binding.action) {
         | Dispatch(payload) => (reset(bindings), [Execute(payload)])
         | Remap(remappedKeys) =>
-          let keys = List.append(originalKeys, remappedKeys);
+          let keys =
+            List.append(originalKeys, List.map(k => Down(k), remappedKeys));
           flush(~context, {...bindings, keys});
         }
       | None => flush(~context, {...bindings, keys})
@@ -218,7 +268,13 @@ module Make = (Config: {
     };
   };
 
-  let keyUp = (~context as _, _key, bindings) => (bindings, []);
+  let keyDown = (~context, key, bindings) => {
+    handleKeyCore(~context, Down(key), bindings);
+  };
+
+  let keyUp = (~context, key, bindings) => {
+    handleKeyCore(~context, Up(key), bindings);
+  };
 
   let empty = {nextId: 0, allBindings: [], keys: []};
 };

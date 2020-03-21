@@ -1,6 +1,10 @@
-type t =
+type keyMatcher =
   | Scancode(int, Modifiers.t)
   | Keycode(int, Modifiers.t);
+
+type t =
+  | Keydown(keyMatcher)
+  | Keyup(keyMatcher);
 
 type sequence = list(t);
 
@@ -31,10 +35,16 @@ let parse = (~getKeycode, ~getScancode, str) => {
 
   let finish = r => {
     let f = parseResult => {
-      let (key, mods) = parseResult;
+      let (activation, key, mods) = parseResult;
       switch (getKeycode(key)) {
       | None => Error("Unrecognized key: " ++ key)
-      | Some(code) => Ok(Keycode(code, internalModsToMods(mods)))
+      | Some(code) =>
+        switch (activation) {
+        | Matcher_internal.Keydown =>
+          Ok(Keydown(Keycode(code, internalModsToMods(mods))))
+        | Matcher_internal.Keyup =>
+          Ok(Keyup(Keycode(code, internalModsToMods(mods))))
+        }
       };
     };
 
