@@ -46,13 +46,11 @@ module type Input = {
 
   type uniqueId;
 
-  let addBinding: (Matcher.sequence, context => bool, payload, t) => 
-    (t, uniqueId);
+  let addBinding:
+    (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
 
   let addMapping:
-    (Matcher.sequence, context => bool, list(key), t) => (
-    t, uniqueId
-    );
+    (Matcher.sequence, context => bool, list(key), t) => (t, uniqueId);
 
   type effects =
     | Execute(payload)

@@ -20,4 +20,4 @@ let equals = (mod1, mod2) => {
   && mod1.altGr == mod2.altGr
   && mod1.shift == mod2.shift
   && mod1.meta == mod2.meta;
-}
+};

@@ -15,7 +15,8 @@ module type Input = {
 
   type uniqueId;
 
-  let addBinding: (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
+  let addBinding:
+    (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
   let addMapping:
     (Matcher.sequence, context => bool, list(key), t) => (t, uniqueId);
 
@@ -37,20 +38,20 @@ module type Input = {
 };
 
 module UniqueId = {
-  let nextId = ref(0); 
+  let nextId = ref(0);
 
   let get = () => {
-    let id = nextId^; 
+    let id = nextId^;
     incr(nextId);
     id;
   };
 };
 
 module KeyDownId = {
-  let nextId = ref(0); 
+  let nextId = ref(0);
 
   let get = () => {
-    let id = nextId^; 
+    let id = nextId^;
     incr(nextId);
     id;
   };
@@ -88,7 +89,7 @@ module Make = (Config: {
     | Up(key);
 
   type textEntry = {
-    keyDownId: keyDownId,
+    keyDownId,
     text: string,
   };
 
@@ -101,11 +102,11 @@ module Make = (Config: {
   };
 
   let concat = (first, second) => {
-      suppressText: false,
-      lastDownKey: None,
-      bindings: first.bindings @ second.bindings,
-      keys: [],
-      text: [],
+    suppressText: false,
+    lastDownKey: None,
+    bindings: first.bindings @ second.bindings,
+    keys: [],
+    text: [],
   };
 
   let keyMatches = (keyMatcher, key: gesture) => {
@@ -210,7 +211,12 @@ module Make = (Config: {
     (newBindings, id);
   };
 
-  let reset = (~keys=[], ~text=[], bindings) => {...bindings, lastDownKey: None, text, keys};
+  let reset = (~keys=[], ~text=[], bindings) => {
+    ...bindings,
+    lastDownKey: None,
+    text,
+    keys,
+  };
 
   let getReadyBindings = bindings => {
     let filter = binding => binding.sequence == [];
@@ -222,30 +228,28 @@ module Make = (Config: {
     let ret = Hashtbl.create(64);
 
     keys
-    |> List.iter((curr) => {
-        switch (curr) {
-        | Up(_key) => ()
-        | Down(id, _key) => Hashtbl.add(ret, id, true);
-        }
-    });
+    |> List.iter(curr => {
+         switch (curr) {
+         | Up(_key) => ()
+         | Down(id, _key) => Hashtbl.add(ret, id, true)
+         }
+       });
 
     ret;
-  }
+  };
 
   let getTextMatchingKeys = (text, keys) => {
     let hash = keyIdsToHashtable(keys);
 
-    text
-    |> List.filter(textEntry => Hashtbl.mem(hash, textEntry.keyDownId));
-  }
-  
+    text |> List.filter(textEntry => Hashtbl.mem(hash, textEntry.keyDownId));
+  };
+
   let getTextNotMatchingKeys = (text, keys) => {
     let hash = keyIdsToHashtable(keys);
 
-    text
-    |> List.filter(textEntry => !Hashtbl.mem(hash, textEntry.keyDownId));
-  }
-  
+    text |> List.filter(textEntry => !Hashtbl.mem(hash, textEntry.keyDownId));
+  };
+
   let isRemap = ({action, _}) =>
     switch (action) {
     | Dispatch(_) => false
@@ -259,13 +263,17 @@ module Make = (Config: {
   let flush = (~context, bindings) => {
     let allKeys = bindings.keys;
 
-    let rec loop = (~flush, revKeys, remainingText: list(textEntry), remainingKeys, effects, iterationCount) => {
+    let rec loop =
+            (
+              ~flush,
+              revKeys,
+              remainingText: list(textEntry),
+              remainingKeys,
+              effects,
+              iterationCount,
+            ) => {
       let candidateBindings =
-        applyKeysToBindings(
-          ~context,
-          revKeys |> List.rev,
-          bindings.bindings,
-        );
+        applyKeysToBindings(~context, revKeys |> List.rev, bindings.bindings);
 
       // If we've hit the recursion limit for remaps... filter out remaps
       let candidateBindings =
@@ -286,23 +294,23 @@ module Make = (Config: {
         if (flush || potentialBindingCount == 0) {
           // Filter out any 'text' entries that are associated with the keys for this finding
           let remainingText = getTextNotMatchingKeys(remainingText, revKeys);
-          
+
           switch (binding.action) {
-          | Dispatch(payload) =>
-          (
+          | Dispatch(payload) => (
               remainingKeys,
               remainingText,
               [Execute(payload), ...effects],
             )
           | Remap(keys) =>
-            let newKeys = keys |> List.map(k => Down(KeyDownId.get(), k)) |> List.rev;
+            let newKeys =
+              keys |> List.map(k => Down(KeyDownId.get(), k)) |> List.rev;
             loop(
               ~flush,
               newKeys,
               remainingText,
               remainingKeys,
               effects,
-              iterationCount + 1
+              iterationCount + 1,
             );
           };
         } else {
@@ -323,31 +331,42 @@ module Make = (Config: {
           (remainingKeys, remainingText, effects)
         | [Down(keyDownId, latestKey)] =>
           let textEffects =
-          remainingText
-          |> List.filter((textEntry) => textEntry.keyDownId == keyDownId)
-          |> List.map((textEntry: textEntry) => Text(textEntry.text));
-
+            remainingText
+            |> List.filter(textEntry => textEntry.keyDownId == keyDownId)
+            |> List.map((textEntry: textEntry) => Text(textEntry.text));
 
           let remainingText =
-          remainingText
-          |> List.filter((textEntry) => textEntry.keyDownId != keyDownId);
-
+            remainingText
+            |> List.filter(textEntry => textEntry.keyDownId != keyDownId);
 
           // At the last key... if we got here, we couldn't find any match for this key
-          ([], remainingText, [Unhandled(latestKey)] @ textEffects @ effects)
+          (
+            [],
+            remainingText,
+            [Unhandled(latestKey)] @ textEffects @ effects,
+          );
         | [Up(latestKey)] =>
           // At the last key... if we got here, we couldn't find any match for this key
           ([], remainingText, effects)
         | [latestKey, ...otherKeys] =>
           // Try a subset of keys
-          loop(~flush, otherKeys, remainingText, [latestKey, ...remainingKeys], effects, iterationCount)
+          loop(
+            ~flush,
+            otherKeys,
+            remainingText,
+            [latestKey, ...remainingKeys],
+            effects,
+            iterationCount,
+          )
         }
       };
     };
 
-    let (remainingKeys, remainingText, effects) = loop(~flush=true, allKeys, bindings.text,[], [], 0);
+    let (remainingKeys, remainingText, effects) =
+      loop(~flush=true, allKeys, bindings.text, [], [], 0);
 
-    let (remainingKeys, remainingText, effects) = loop(~flush=false, remainingKeys, remainingText, [], effects, 0);
+    let (remainingKeys, remainingText, effects) =
+      loop(~flush=false, remainingKeys, remainingText, [], effects, 0);
 
     let keys = remainingKeys;
 
@@ -357,8 +376,8 @@ module Make = (Config: {
     let currentText = getTextMatchingKeys(remainingText, keys);
 
     let textEffects =
-    unhandledText
-    |> List.map((textEntry: textEntry) => Text(textEntry.text));
+      unhandledText
+      |> List.map((textEntry: textEntry) => Text(textEntry.text));
 
     let text = currentText;
     (reset(~keys, ~text, bindings), textEffects @ effects);
@@ -384,12 +403,18 @@ module Make = (Config: {
       | Some(binding) =>
         let text = getTextNotMatchingKeys(bindings.text, keys);
         switch (binding.action) {
-        | Dispatch(payload) => (reset({...bindings, suppressText: true, text}), [Execute(payload)])
+        | Dispatch(payload) => (
+            reset({...bindings, suppressText: true, text}),
+            [Execute(payload)],
+          )
         | Remap(remappedKeys) =>
           let keys =
-            List.append(originalKeys, List.map(k => Down(KeyDownId.get(), k), remappedKeys));
+            List.append(
+              originalKeys,
+              List.map(k => Down(KeyDownId.get(), k), remappedKeys),
+            );
           flush(~context, {...bindings, suppressText: true, text, keys});
-        }
+        };
       | None => flush(~context, {...bindings, keys})
       };
     };
@@ -399,37 +424,40 @@ module Make = (Config: {
 
   let keyDown = (~context, ~key, bindings) => {
     let id = KeyDownId.get();
-    handleKeyCore(~context, Down(id, key), {
-      ...bindings,
-      lastDownKey: Some(id),
-    });
+    handleKeyCore(
+      ~context,
+      Down(id, key),
+      {...bindings, lastDownKey: Some(id)},
+    );
   };
 
-  let text = (~text, bindings) => {
+  let text = (~text, bindings) =>
     // The last key down participating in binding,
     // so we'll ignore text until we get a keyup
     if (bindings.suppressText) {
-      (bindings, [])
+      (bindings, []);
     } else {
-    switch (bindings.lastDownKey) {
-    // If there is a pending key, hold on to the text input
-    // until the gesture is completed
-    | Some(keyDownId) => ({
-      ...bindings,
-      text: [{keyDownId, text}, ...bindings.text],
-    }, [])
-    // Otherwise, just dispatch the Text event
-    | None => (bindings, [Text(text)])
-    }
-    }
-  }
+      switch (bindings.lastDownKey) {
+      // If there is a pending key, hold on to the text input
+      // until the gesture is completed
+      | Some(keyDownId) => (
+          {...bindings, text: [{keyDownId, text}, ...bindings.text]},
+          [],
+        )
+      // Otherwise, just dispatch the Text event
+      | None => (bindings, [Text(text)])
+      };
+    };
 
   let keyUp = (~context, ~key, bindings) => {
-    handleKeyCore(~context, Up(key), {
-      ...bindings,
-      suppressText: false,
-    });
+    handleKeyCore(~context, Up(key), {...bindings, suppressText: false});
   };
 
-  let empty = {suppressText: false, text: [], lastDownKey: None, bindings: [], keys: []};
+  let empty = {
+    suppressText: false,
+    text: [],
+    lastDownKey: None,
+    bindings: [],
+    keys: [],
+  };
 };

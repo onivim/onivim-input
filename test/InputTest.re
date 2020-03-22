@@ -62,15 +62,13 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
-               Keydown(Keycode(1, Modifiers.none)),
-             ],
+             [Keydown(Keycode(1, Modifiers.none))],
              _ => true,
              "payloadA",
            );
 
-        let (_bindings, effects) = Input.text(~text="a", bindings);
-        expect.equal(effects, [Text("a")]);
+      let (_bindings, effects) = Input.text(~text="a", bindings);
+      expect.equal(effects, [Text("a")]);
     });
     test("should be held in sequence", ({expect}) => {
       let (bindings, _id) =
@@ -87,17 +85,17 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _effects) =
         Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
-      let (bindings, _effects) =
-        Input.text(~text="a", bindings);
+      let (bindings, _effects) = Input.text(~text="a", bindings);
 
       // Sequence fails - get text event
       let (_bindings, effects) =
         Input.keyDown(~context=true, ~key=cKeyNoModifiers, bindings);
 
       expect.equal(effects, [Text("a"), Unhandled(cKeyNoModifiers)]);
-    })
+    });
 
-    test("text after successful binding should not be dispatched", ({expect}) => {
+    test(
+      "text after successful binding should not be dispatched", ({expect}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
@@ -112,8 +110,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _effects) =
         Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
-      let (bindings, _effects) =
-        Input.text(~text="a", bindings);
+      let (bindings, _effects) = Input.text(~text="a", bindings);
 
       // Sequence fails - get text event
       let (bindings, effects) =
@@ -121,12 +118,11 @@ describe("EditorInput", ({describe, _}) => {
 
       expect.equal(effects, [Execute("payloadAB")]);
 
-      let (_bindings, effects) =
-        Input.text(~text="b", bindings);
-      
+      let (_bindings, effects) = Input.text(~text="b", bindings);
+
       // Subsequent text input should be ignored
       expect.equal(effects, []);
-    })
+    });
 
     test("text not dispatched in sequence", ({expect}) => {
       let (bindings, _id) =
@@ -143,15 +139,14 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _effects) =
         Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
 
-      let (bindings, _effects) =
-        Input.text(~text="a", bindings);
+      let (bindings, _effects) = Input.text(~text="a", bindings);
 
       // Sequence fails - get text event
       let (_bindings, effects) =
         Input.keyDown(~context=true, ~key=bKeyNoModifiers, bindings);
 
       expect.equal(effects, [Execute("payloadAB")]);
-    })
+    });
   });
   describe("sequences", ({test, _}) => {
     test("simple sequence", ({expect}) => {
