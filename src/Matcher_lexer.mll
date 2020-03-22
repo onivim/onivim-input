@@ -1,8 +1,11 @@
 {
 	open Matcher_parser
 	open Matcher_internal
+	open Key
 	
 	exception Error
+
+	exception UnrecognizedModifier of string
 
 	let modifierTable = Hashtbl.create 64
 
@@ -34,29 +37,29 @@ rule token = parse
  	let m = String.lowercase_ascii m in
 	try Hashtbl.find modifierTable m
 	with Not_found ->
-		BINDING (m)
+		raise (UnrecognizedModifier m)
  }
 (* Single keys *)
-| "esc" { BINDING ("Escape") }
-| "escape" { BINDING ("Escape") }
-| "up" { BINDING ("Up") }
-| "down" { BINDING ("Down") }
-| "left" { BINDING ("Left") }
-| "right" { BINDING ("Right") }
-| "tab" { BINDING ("Tab") }
-| "pageup" { BINDING ("PageUp") }
-| "pagedown" { BINDING ("PageDown") }
-| "cr" { BINDING ("Return") }
-| "enter" { BINDING ("Return") }
-| "space" { BINDING ("Space") }
-| "del" { BINDING ("Delete") }
-| "delete" { BINDING ("Delete") }
-| "pause" { BINDING ("Pause") }
-| "pausebreak" { BINDING ("Pause") }
+| "esc" { BINDING (Escape) }
+| "escape" { BINDING (Escape) }
+| "up" { BINDING (Up) }
+| "down" { BINDING (Down) }
+| "left" { BINDING (Left) }
+| "right" { BINDING (Right) }
+| "tab" { BINDING (Tab) }
+| "pageup" { BINDING (PageUp) }
+| "pagedown" { BINDING (PageDown) }
+| "cr" { BINDING (Return) }
+| "enter" { BINDING (Return) }
+| "space" { BINDING (Space) }
+| "del" { BINDING (Delete) }
+| "delete" { BINDING (Delete) }
+| "pause" { BINDING (Pause) }
+| "pausebreak" { BINDING (Pause) }
 | white { token lexbuf }
 | '!' { EXCLAMATION }
 | binding as i
- { BINDING (String.make 1 (Char.lowercase_ascii i)) }
+ { BINDING (Character (i)) }
 | '<' { LT }
 | '>' { GT }
 | eof { EOF }
@@ -64,4 +67,4 @@ rule token = parse
 
 and single_tokens = parse
 | ['a' - 'z' 'A' - 'Z' '0'-'9']  as i
- { BINDING (String.make 1 (Char.lowercase_ascii i)) }
+ { BINDING (Character (i)) }

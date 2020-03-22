@@ -8,4 +8,4 @@ type activation =
   | Keyup
   | Keydown;
 
-type t = (activation, string, list(modifier));
+type t = (activation, Key.t, list(modifier));

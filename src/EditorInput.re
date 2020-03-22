@@ -1,3 +1,4 @@
+module Key = Key;
 module Modifiers = Modifiers;
 module Matcher = Matcher;
 

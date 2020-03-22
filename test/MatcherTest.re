@@ -3,10 +3,10 @@ open EditorInput;
 
 let getKeycode =
   fun
-  | "a" => Some(1)
-  | "b" => Some(2)
-  | "Escape" => Some(99)
-  | "Up" => Some(100)
+  | Key.Character('a') => Some(1)
+  | Key.Character('b') => Some(2)
+  | Key.Escape => Some(99)
+  | Key.Up => Some(100)
   | _ => None;
 
 let getScancode =

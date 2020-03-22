@@ -1,3 +1,22 @@
+module Key: {
+  type t = 
+  | Character(char)
+  | Escape
+  | Down
+  | Up
+  | Left
+  | Right
+  | Tab
+  | PageUp
+  | PageDown
+  | Return
+  | Space
+  | Delete
+  | Pause;
+
+  let to_string: t => string;
+}
+
 module Modifiers: {
   type t = {
     control: bool,
@@ -25,8 +44,8 @@ module Matcher: {
 
   let parse:
     (
-      ~getKeycode: string => option(int),
-      ~getScancode: string => option(int),
+      ~getKeycode: Key.t => option(int),
+      ~getScancode: Key.t => option(int),
       string
     ) =>
     result(sequence, string);

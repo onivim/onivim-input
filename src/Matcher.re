@@ -37,7 +37,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
     let f = parseResult => {
       let (activation, key, mods) = parseResult;
       switch (getKeycode(key)) {
-      | None => Error("Unrecognized key: " ++ key)
+      | None => Error("Unrecognized key: " ++ Key.to_string(key))
       | Some(code) =>
         switch (activation) {
         | Matcher_internal.Keydown =>
