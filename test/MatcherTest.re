@@ -28,12 +28,12 @@ let getKeycode =
   | Key.Function(19) => Some(134)
   | Key.NumpadDigit(0) => Some(135)
   | Key.NumpadDigit(9) => Some(144)
-| NumpadMultiply => Some(145)
-| NumpadAdd => Some(146)
-| NumpadSeparator => Some(147)
-| NumpadSubtract => Some(148)
-| NumpadDecimal => Some(149)
-| NumpadDivide => Some(150)
+  | NumpadMultiply => Some(145)
+  | NumpadAdd => Some(146)
+  | NumpadSeparator => Some(147)
+  | NumpadSubtract => Some(148)
+  | NumpadDecimal => Some(149)
+  | NumpadDivide => Some(150)
   | _ => None;
 
 let getScancode =
@@ -50,9 +50,9 @@ describe("Matcher", ({describe, _}) => {
   describe("parser", ({test, _}) => {
     test("all keys", ({expect}) => {
       open Matcher;
-    // Exercise full set of keys described here:
-    // https://code.visualstudio.com/docs/getstarted/keybindings#_accepted-keys
-      let cases = [ 
+      // Exercise full set of keys described here:
+      // https://code.visualstudio.com/docs/getstarted/keybindings#_accepted-keys
+      let cases = [
         ("a", Keydown(Keycode(1, Modifiers.none))),
         ("A", Keydown(Keycode(1, Modifiers.none))),
         ("0", Keydown(Keycode(50, Modifiers.none))),
@@ -87,19 +87,18 @@ describe("Matcher", ({describe, _}) => {
         ("numpad_separator", Keydown(Keycode(147, Modifiers.none))),
         ("numpad_subtract", Keydown(Keycode(148, Modifiers.none))),
         ("numpad_decimal", Keydown(Keycode(149, Modifiers.none))),
-        ("numpad_divide", Keydown(Keycode(150, Modifiers.none)))
+        ("numpad_divide", Keydown(Keycode(150, Modifiers.none))),
       ];
 
-      let runCase = (case) => {
+      let runCase = case => {
         let (keyString, matcher) = case;
         let result = defaultParse(keyString);
 
         expect.equal(result, Ok([matcher]));
       };
 
-      let _: unit = cases
-      |> List.iter(runCase);
-
+      let _: unit = cases |> List.iter(runCase);
+      ();
     });
     test("simple parsing", ({expect}) => {
       let result = defaultParse("a");

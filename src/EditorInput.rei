@@ -1,34 +1,34 @@
 module Key: {
-  type t = 
-  | Character(char)
-  | Function(int)
-  | NumpadDigit(int)
-  | Escape
-  | Down
-  | Up
-  | Left
-  | Right
-  | Tab
-  | PageUp
-  | PageDown
-  | Return
-  | Space
-  | Delete
-  | Pause
-  | Home
-  | End
-  | Backspace
-  | CapsLock
-  | Insert
-| NumpadMultiply
-| NumpadAdd
-| NumpadSeparator
-| NumpadSubtract
-| NumpadDecimal
-| NumpadDivide
+  type t =
+    | Character(char)
+    | Function(int)
+    | NumpadDigit(int)
+    | Escape
+    | Down
+    | Up
+    | Left
+    | Right
+    | Tab
+    | PageUp
+    | PageDown
+    | Return
+    | Space
+    | Delete
+    | Pause
+    | Home
+    | End
+    | Backspace
+    | CapsLock
+    | Insert
+    | NumpadMultiply
+    | NumpadAdd
+    | NumpadSeparator
+    | NumpadSubtract
+    | NumpadDecimal
+    | NumpadDivide;
 
   let to_string: t => string;
-}
+};
 
 module Modifiers: {
   type t = {
