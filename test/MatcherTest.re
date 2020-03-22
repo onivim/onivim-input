@@ -5,6 +5,8 @@ let getKeycode =
   fun
   | "a" => Some(1)
   | "b" => Some(2)
+  | "Escape" => Some(99)
+  | "Up" => Some(100)
   | _ => None;
 
 let getScancode =
@@ -28,6 +30,9 @@ describe("Matcher", ({describe, _}) => {
 
       let result = defaultParse("c");
       expect.equal(Result.is_error(result), true);
+
+      let result = defaultParse("esc");
+      expect.equal(result, Ok([Keydown(Keycode(99, Modifiers.none))]));
     });
     test("vim bindings", ({expect}) => {
       let result = defaultParse("<a>");

@@ -71,5 +71,9 @@ let parse = (~getKeycode, ~getScancode, str) => {
     };
   };
 
-  str |> Lexing.from_string |> parse |> flatMap(finish);
+  str
+  |> String.lowercase_ascii
+  |> Lexing.from_string
+  |> parse
+  |> flatMap(finish);
 };
