@@ -1,19 +1,19 @@
 open TestFramework;
 open EditorInput;
 
-let aKeyNoModifiers: key = {
+let aKeyNoModifiers: keyPress = {
   scancode: 101,
   keycode: 1,
   modifiers: Modifiers.none,
 };
 
-let bKeyNoModifiers: key = {
+let bKeyNoModifiers: keyPress = {
   scancode: 102,
   keycode: 2,
   modifiers: Modifiers.none,
 };
 
-let cKeyNoModifiers: key = {
+let cKeyNoModifiers: keyPress = {
   scancode: 103,
   keycode: 3,
   modifiers: Modifiers.none,

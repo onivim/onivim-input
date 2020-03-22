@@ -1,5 +1,5 @@
 %token <Matcher_internal.modifier> MODIFIER
-%token <string> BINDING
+%token <Key.t> BINDING
 %token LT GT
 %token EXCLAMATION
 %token EOF

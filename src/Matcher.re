@@ -12,6 +12,8 @@ let parse = (~getKeycode, ~getScancode, str) => {
   let parse = lexbuf =>
     switch (Matcher_parser.main(Matcher_lexer.token, lexbuf)) {
     | exception Matcher_lexer.Error => Error("Error parsing binding: " ++ str)
+    | exception (Matcher_lexer.UnrecognizedModifier(m)) =>
+      Error("Unrecognized modifier:" ++ m ++ " in: " ++ str)
     | exception Matcher_parser.Error =>
       Error("Error parsing binding: " ++ str)
     | v => Ok(v)
@@ -37,7 +39,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
     let f = parseResult => {
       let (activation, key, mods) = parseResult;
       switch (getKeycode(key)) {
-      | None => Error("Unrecognized key: " ++ key)
+      | None => Error("Unrecognized key: " ++ Key.toString(key))
       | Some(code) =>
         switch (activation) {
         | Matcher_internal.Keydown =>
