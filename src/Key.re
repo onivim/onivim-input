@@ -13,7 +13,10 @@ type t =
 | Delete
 | Pause
 | Home
-| End;
+| End
+| Backspace
+| CapsLock
+| Insert;
 
 let to_string = fun
 | Character(c) => Printf.sprintf("Character(%c)", c)
@@ -30,4 +33,7 @@ let to_string = fun
 | Delete => "Delete"
 | Pause => "PauseBreak"
 | Home => "Home"
-| End => "End";
+| End => "End"
+| Backspace => "Backspace"
+| CapsLock => "CapsLock"
+| Insert => "Insert"

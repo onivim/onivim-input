@@ -14,7 +14,10 @@ module Key: {
   | Delete
   | Pause
   | Home
-  | End;
+  | End
+  | Backspace
+  | CapsLock
+  | Insert;
 
   let to_string: t => string;
 }

@@ -58,6 +58,12 @@ rule token = parse
 | "pausebreak" { BINDING (Pause) }
 | "home" { BINDING (Home) }
 | "end" { BINDING (End) }
+| "del" { BINDING (Delete) }
+| "delete" { BINDING (Delete) }
+| "bs" { BINDING (Backspace) }
+| "backspace" { BINDING (Backspace) }
+| "capslock" { BINDING (CapsLock) }
+| "insert" { BINDING (Insert) }
 | white { token lexbuf }
 | '!' { EXCLAMATION }
 | binding as i
