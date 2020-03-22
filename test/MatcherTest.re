@@ -7,6 +7,17 @@ let getKeycode =
   | Key.Character('b') => Some(2)
   | Key.Character('0') => Some(50)
   | Key.Character('9') => Some(59)
+  | Key.Character('`') => Some(60)
+  | Key.Character('-') => Some(61)
+  | Key.Character('=') => Some(62)
+  | Key.Character('[') => Some(63)
+  | Key.Character(']') => Some(64)
+  | Key.Character('\\') => Some(65)
+  | Key.Character(';') => Some(66)
+  | Key.Character('\'') => Some(67)
+  | Key.Character(',') => Some(68)
+  | Key.Character('.') => Some(69)
+  | Key.Character('/') => Some(70)
   | Key.Tab => Some(98)
   | Key.Escape => Some(99)
   | Key.Up => Some(100)
@@ -57,6 +68,17 @@ describe("Matcher", ({describe, _}) => {
         ("A", Keydown(Keycode(1, Modifiers.none))),
         ("0", Keydown(Keycode(50, Modifiers.none))),
         ("9", Keydown(Keycode(59, Modifiers.none))),
+        ("`", Keydown(Keycode(60, Modifiers.none))),
+        ("-", Keydown(Keycode(61, Modifiers.none))),
+        ("=", Keydown(Keycode(62, Modifiers.none))),
+        ("[", Keydown(Keycode(63, Modifiers.none))),
+        ("]", Keydown(Keycode(64, Modifiers.none))),
+        ("\\", Keydown(Keycode(65, Modifiers.none))),
+        (";", Keydown(Keycode(66, Modifiers.none))),
+        ("'", Keydown(Keycode(67, Modifiers.none))),
+        (",", Keydown(Keycode(68, Modifiers.none))),
+        (".", Keydown(Keycode(69, Modifiers.none))),
+        ("/", Keydown(Keycode(70, Modifiers.none))),
         ("tab", Keydown(Keycode(98, Modifiers.none))),
         ("ESC", Keydown(Keycode(99, Modifiers.none))),
         ("up", Keydown(Keycode(100, Modifiers.none))),

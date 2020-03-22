@@ -29,7 +29,7 @@ let white = [' ' '\t']+
 let alpha = ['a' - 'z' 'A' - 'Z']
 let modifier = alpha+ ['-' '+']
 
-let binding = ['a'-'z' 'A'-'Z' '0'-'9' '`' '-' '=' '[' ']' '\\' ';' '\'']
+let binding = ['a'-'z' 'A'-'Z' '0'-'9' '`' '-' '=' '[' ']' '\\' ';' '\'' ',' '.' '/']
 
 rule token = parse
 | modifier as m
