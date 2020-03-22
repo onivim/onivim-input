@@ -131,9 +131,7 @@ module Make = (Config: {
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
         | (Keyup(Keycode(keycode, mods)), Up(key)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
-        | (AllKeysReleased, AllKeysReleased) =>
-          prerr_endline("All keys released case");
-          true;
+        | (AllKeysReleased, AllKeysReleased) => true
         | _ => false
         };
       }
@@ -490,14 +488,6 @@ module Make = (Config: {
             }
           | [] => []
           };
-
-        effect
-        |> List.iter(
-             fun
-             | Execute(_) => prerr_endline("EXECUTE")
-             | Unhandled(_) => prerr_endline("UNHANDLED")
-             | Text(txt) => prerr_endline("TEXT: " ++ txt),
-           );
 
         effect;
       } else {
