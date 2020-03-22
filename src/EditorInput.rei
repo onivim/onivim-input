@@ -12,7 +12,9 @@ module Key: {
   | Return
   | Space
   | Delete
-  | Pause;
+  | Pause
+  | Home
+  | End;
 
   let to_string: t => string;
 }

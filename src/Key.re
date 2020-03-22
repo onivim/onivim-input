@@ -11,7 +11,9 @@ type t =
 | Return
 | Space
 | Delete
-| Pause;
+| Pause
+| Home
+| End;
 
 let to_string = fun
 | Character(c) => Printf.sprintf("Character(%c)", c)
@@ -26,4 +28,6 @@ let to_string = fun
 | Return => "Return"
 | Space => "Space"
 | Delete => "Delete"
-| Pause => "PauseBreak";
+| Pause => "PauseBreak"
+| Home => "Home"
+| End => "End";

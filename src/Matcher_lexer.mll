@@ -56,6 +56,8 @@ rule token = parse
 | "delete" { BINDING (Delete) }
 | "pause" { BINDING (Pause) }
 | "pausebreak" { BINDING (Pause) }
+| "home" { BINDING (Home) }
+| "end" { BINDING (End) }
 | white { token lexbuf }
 | '!' { EXCLAMATION }
 | binding as i
