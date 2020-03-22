@@ -27,7 +27,7 @@ module Key: {
     | NumpadDecimal
     | NumpadDivide;
 
-  let to_string: t => string;
+  let toString: t => string;
 };
 
 module Modifiers: {

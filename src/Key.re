@@ -26,7 +26,7 @@ type t =
   | NumpadDecimal
   | NumpadDivide;
 
-let to_string =
+let toString =
   fun
   | Character(c) => Printf.sprintf("Character(%c)", c)
   | Function(digit) => Printf.sprintf("Function(%d)", digit)
