@@ -26,6 +26,8 @@ let getKeycode =
   | Key.Insert => Some(114)
   | Key.Function(0) => Some(115)
   | Key.Function(19) => Some(134)
+  | Key.NumpadDigit(0) => Some(135)
+  | Key.NumpadDigit(9) => Some(144)
   | _ => None;
 
 let getScancode =
@@ -72,6 +74,8 @@ describe("Matcher", ({describe, _}) => {
         ("insert", Keydown(Keycode(114, Modifiers.none))),
         ("f0", Keydown(Keycode(115, Modifiers.none))),
         ("f19", Keydown(Keycode(134, Modifiers.none))),
+        ("numpad0", Keydown(Keycode(135, Modifiers.none))),
+        ("numpad9", Keydown(Keycode(144, Modifiers.none))),
       ];
 
       let runCase = (case) => {

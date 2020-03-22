@@ -1,6 +1,7 @@
 type t = 
 | Character(char)
 | Function(int)
+| NumpadDigit(int)
 | Escape
 | Down
 | Up
@@ -22,6 +23,7 @@ type t =
 let to_string = fun
 | Character(c) => Printf.sprintf("Character(%c)", c)
 | Function(digit) => Printf.sprintf("Function(%d)", digit)
+| NumpadDigit(digit) => Printf.sprintf("Numpad(%d)", digit)
 | Escape => "Escape"
 | Down => "Down"
 | Up => "Up"

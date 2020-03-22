@@ -41,6 +41,7 @@ rule token = parse
  }
 | 'f' (['0'-'9'] as m) { BINDING ( Function(int_of_string (String.make 1 m)) ) }
 | 'f' '1' (['0'-'9'] as m) { BINDING ( Function(int_of_string ("1" ^ (String.make 1 m))) ) }
+| 'f' '1' (['0'-'9'] as m) { BINDING ( Function(int_of_string ("1" ^ (String.make 1 m))) ) }
 | "esc" { BINDING (Escape) }
 | "escape" { BINDING (Escape) }
 | "up" { BINDING (Up) }
@@ -65,6 +66,7 @@ rule token = parse
 | "backspace" { BINDING (Backspace) }
 | "capslock" { BINDING (CapsLock) }
 | "insert" { BINDING (Insert) }
+| "numpad" { numpad_digit lexbuf }
 | white { token lexbuf }
 | '!' { EXCLAMATION }
 | binding as i
@@ -73,3 +75,6 @@ rule token = parse
 | '>' { GT }
 | eof { EOF }
 | _ { raise Error }
+
+and numpad_digit = parse
+| ['0'-'9'] as digit { BINDING ( NumpadDigit(int_of_string (String.make 1 digit)) ) }
