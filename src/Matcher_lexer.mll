@@ -39,7 +39,8 @@ rule token = parse
 	with Not_found ->
 		raise (UnrecognizedModifier m)
  }
-(* Single keys *)
+| 'f' (['0'-'9'] as m) { BINDING ( Function(int_of_string (String.make 1 m)) ) }
+| 'f' '1' (['0'-'9'] as m) { BINDING ( Function(int_of_string ("1" ^ (String.make 1 m))) ) }
 | "esc" { BINDING (Escape) }
 | "escape" { BINDING (Escape) }
 | "up" { BINDING (Up) }
@@ -72,7 +73,3 @@ rule token = parse
 | '>' { GT }
 | eof { EOF }
 | _ { raise Error }
-
-and single_tokens = parse
-| ['a' - 'z' 'A' - 'Z' '0'-'9']  as i
- { BINDING (Character (i)) }

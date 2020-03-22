@@ -17,6 +17,15 @@ let getKeycode =
   | Key.PageDown => Some(105)
   | Key.End => Some(106)
   | Key.Home => Some(107)
+  | Key.Return => Some(108)
+  | Key.Space => Some(109)
+  | Key.Backspace => Some(110)
+  | Key.Delete => Some(111)
+  | Key.Pause => Some(112)
+  | Key.CapsLock => Some(113)
+  | Key.Insert => Some(114)
+  | Key.Function(0) => Some(115)
+  | Key.Function(19) => Some(134)
   | _ => None;
 
 let getScancode =
@@ -33,6 +42,8 @@ describe("Matcher", ({describe, _}) => {
   describe("parser", ({test, _}) => {
     test("all keys", ({expect}) => {
       open Matcher;
+    // Exercise full set of keys described here:
+    // https://code.visualstudio.com/docs/getstarted/keybindings#_accepted-keys
       let cases = [ 
         ("a", Keydown(Keycode(1, Modifiers.none))),
         ("A", Keydown(Keycode(1, Modifiers.none))),
@@ -48,6 +59,19 @@ describe("Matcher", ({describe, _}) => {
         ("pagedown", Keydown(Keycode(105, Modifiers.none))),
         ("end", Keydown(Keycode(106, Modifiers.none))),
         ("home", Keydown(Keycode(107, Modifiers.none))),
+        ("enter", Keydown(Keycode(108, Modifiers.none))),
+        ("cr", Keydown(Keycode(108, Modifiers.none))),
+        ("escape", Keydown(Keycode(99, Modifiers.none))),
+        ("space", Keydown(Keycode(109, Modifiers.none))),
+        ("bs", Keydown(Keycode(110, Modifiers.none))),
+        ("backspace", Keydown(Keycode(110, Modifiers.none))),
+        ("del", Keydown(Keycode(111, Modifiers.none))),
+        ("delete", Keydown(Keycode(111, Modifiers.none))),
+        ("pause", Keydown(Keycode(112, Modifiers.none))),
+        ("capslock", Keydown(Keycode(113, Modifiers.none))),
+        ("insert", Keydown(Keycode(114, Modifiers.none))),
+        ("f0", Keydown(Keycode(115, Modifiers.none))),
+        ("f19", Keydown(Keycode(134, Modifiers.none))),
       ];
 
       let runCase = (case) => {

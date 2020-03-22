@@ -1,6 +1,7 @@
 module Key: {
   type t = 
   | Character(char)
+  | Function(int)
   | Escape
   | Down
   | Up
