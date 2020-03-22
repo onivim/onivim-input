@@ -1,7 +1,7 @@
 module Modifiers = Modifiers;
 module Matcher = Matcher;
 
-type key = {
+type keyPress = {
   scancode: int,
   keycode: int,
   modifiers: Modifiers.t,
@@ -18,16 +18,16 @@ module type Input = {
   let addBinding:
     (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
   let addMapping:
-    (Matcher.sequence, context => bool, list(key), t) => (t, uniqueId);
+    (Matcher.sequence, context => bool, list(keyPress), t) => (t, uniqueId);
 
   type effects =
     | Execute(payload)
     | Text(string)
-    | Unhandled(key);
+    | Unhandled(keyPress);
 
-  let keyDown: (~context: context, ~key: key, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: keyPress, t) => (t, list(effects));
   let text: (~text: string, t) => (t, list(effects));
-  let keyUp: (~context: context, ~key: key, t) => (t, list(effects));
+  let keyUp: (~context: context, ~key: keyPress, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));
 
   let isPending: t => bool;
@@ -67,11 +67,11 @@ module Make = (Config: {
   type effects =
     | Execute(payload)
     | Text(string)
-    | Unhandled(key);
+    | Unhandled(keyPress);
 
   type action =
     | Dispatch(payload)
-    | Remap(list(key));
+    | Remap(list(keyPress));
 
   type binding = {
     id: int,
@@ -85,8 +85,8 @@ module Make = (Config: {
   type keyDownId = int;
 
   type gesture =
-    | Down(keyDownId, key)
-    | Up(key);
+    | Down(keyDownId, keyPress)
+    | Up(keyPress);
 
   type textEntry = {
     keyDownId,
