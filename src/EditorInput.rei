@@ -19,7 +19,13 @@ module Key: {
   | End
   | Backspace
   | CapsLock
-  | Insert;
+  | Insert
+| NumpadMultiply
+| NumpadAdd
+| NumpadSeparator
+| NumpadSubtract
+| NumpadDecimal
+| NumpadDivide
 
   let to_string: t => string;
 }

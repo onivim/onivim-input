@@ -28,6 +28,12 @@ let getKeycode =
   | Key.Function(19) => Some(134)
   | Key.NumpadDigit(0) => Some(135)
   | Key.NumpadDigit(9) => Some(144)
+| NumpadMultiply => Some(145)
+| NumpadAdd => Some(146)
+| NumpadSeparator => Some(147)
+| NumpadSubtract => Some(148)
+| NumpadDecimal => Some(149)
+| NumpadDivide => Some(150)
   | _ => None;
 
 let getScancode =
@@ -76,6 +82,12 @@ describe("Matcher", ({describe, _}) => {
         ("f19", Keydown(Keycode(134, Modifiers.none))),
         ("numpad0", Keydown(Keycode(135, Modifiers.none))),
         ("numpad9", Keydown(Keycode(144, Modifiers.none))),
+        ("numpad_multiply", Keydown(Keycode(145, Modifiers.none))),
+        ("numpad_add", Keydown(Keycode(146, Modifiers.none))),
+        ("numpad_separator", Keydown(Keycode(147, Modifiers.none))),
+        ("numpad_subtract", Keydown(Keycode(148, Modifiers.none))),
+        ("numpad_decimal", Keydown(Keycode(149, Modifiers.none))),
+        ("numpad_divide", Keydown(Keycode(150, Modifiers.none)))
       ];
 
       let runCase = (case) => {

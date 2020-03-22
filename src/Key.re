@@ -18,7 +18,14 @@ type t =
 | End
 | Backspace
 | CapsLock
-| Insert;
+| Insert
+| NumpadMultiply
+| NumpadAdd
+| NumpadSeparator
+| NumpadSubtract
+| NumpadDecimal
+| NumpadDivide
+
 
 let to_string = fun
 | Character(c) => Printf.sprintf("Character(%c)", c)
@@ -41,3 +48,9 @@ let to_string = fun
 | Backspace => "Backspace"
 | CapsLock => "CapsLock"
 | Insert => "Insert"
+| NumpadMultiply => "NumpadMultiply"
+| NumpadAdd => "NumpadAdd"
+| NumpadSeparator => "NumpadSeparator"
+| NumpadSubtract => "NumpadSubtract"
+| NumpadDecimal => "NumpadDecimal"
+| NumpadDivide => "NumpadDivide";

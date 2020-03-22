@@ -66,6 +66,12 @@ rule token = parse
 | "backspace" { BINDING (Backspace) }
 | "capslock" { BINDING (CapsLock) }
 | "insert" { BINDING (Insert) }
+| "numpad_multiply" { BINDING(NumpadMultiply) }
+| "numpad_add" { BINDING(NumpadAdd) }
+| "numpad_separator" { BINDING(NumpadSeparator) }
+| "numpad_subtract" { BINDING(NumpadSubtract) }
+| "numpad_decimal" { BINDING(NumpadDecimal) }
+| "numpad_divide" { BINDING(NumpadDivide) }
 | "numpad" { numpad_digit lexbuf }
 | white { token lexbuf }
 | '!' { EXCLAMATION }
