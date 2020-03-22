@@ -39,6 +39,7 @@ rule token = parse
 	with Not_found ->
 		raise (UnrecognizedModifier m)
  }
+| "<release>" { ALLKEYSRELEASED }
 | 'f' (['0'-'9'] as m) { BINDING ( Function(int_of_string (String.make 1 m)) ) }
 | 'f' '1' (['0'-'9'] as m) { BINDING ( Function(int_of_string ("1" ^ (String.make 1 m))) ) }
 | 'f' '1' (['0'-'9'] as m) { BINDING ( Function(int_of_string ("1" ^ (String.make 1 m))) ) }

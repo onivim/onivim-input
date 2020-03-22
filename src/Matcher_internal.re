@@ -6,6 +6,8 @@ type modifier =
 
 type activation =
   | Keyup
-  | Keydown;
+  | Keydown
 
-type t = (activation, Key.t, list(modifier));
+type t =
+| Key((activation, Key.t, list(modifier)))
+| AllKeysReleased;
