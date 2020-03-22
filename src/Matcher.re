@@ -49,7 +49,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
           | Matcher_internal.Keyup =>
             Ok(Keyup(Keycode(code, internalModsToMods(mods))))
           }
-        };
+        }
       | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
       };
     };

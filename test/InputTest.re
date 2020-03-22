@@ -58,15 +58,10 @@ describe("EditorInput", ({describe, _}) => {
     })
   });
   describe("allKeysReleased", ({test, _}) => {
-
     test("basic release case", ({expect}) => {
       let (bindings, _id) =
         Input.empty
-        |> Input.addBinding(
-             [AllKeysReleased],
-             _ => true,
-             "payloadA",
-           );
+        |> Input.addBinding([AllKeysReleased], _ => true, "payloadA");
 
       let (bindings, effects) =
         Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
@@ -74,11 +69,9 @@ describe("EditorInput", ({describe, _}) => {
 
       let (bindings, effects) =
         Input.keyUp(~context=true, ~key=aKeyNoModifiers, bindings);
-      
-      expect.equal(effects, [Execute("payloadA")]);
-      
-    })
 
+      expect.equal(effects, [Execute("payloadA")]);
+    })
   });
   describe("text", ({test, _}) => {
     test("should immediately dispatch if no pending keys", ({expect}) => {

@@ -8,10 +8,11 @@ type keyPress = {
   modifiers: Modifiers.t,
 };
 
-module IntSet = Set.Make({
-  let compare = Stdlib.compare;
-  type t = int;
-});
+module IntSet =
+  Set.Make({
+    let compare = Stdlib.compare;
+    type t = int;
+  });
 
 module type Input = {
   type payload;
@@ -130,7 +131,9 @@ module Make = (Config: {
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
         | (Keyup(Keycode(keycode, mods)), Up(key)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
-        | (AllKeysReleased, AllKeysReleased) => true
+        | (AllKeysReleased, AllKeysReleased) =>
+          prerr_endline("All keys released case");
+          true;
         | _ => false
         };
       }
@@ -179,7 +182,7 @@ module Make = (Config: {
            )
          );
 
-    let onlyDownKeys =
+    let keysWithoutUps =
       keys
       |> List.filter_map(
            fun
@@ -188,14 +191,14 @@ module Make = (Config: {
            | Up(key) => None,
          );
 
-    let bindingsWithJustKeyDown =
-      onlyDownKeys
+    let bindingsWithoutUpKey =
+      keysWithoutUps
       |> List.fold_left(
            (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
            unusedBindings,
          );
 
-    bindingsWithKeyUp @ bindingsWithJustKeyDown;
+    bindingsWithKeyUp @ bindingsWithoutUpKey;
   };
 
   let addBinding = (sequence, enabled, payload, keyBindings) => {
@@ -439,9 +442,11 @@ module Make = (Config: {
     handleKeyCore(
       ~context,
       Down(id, key),
-      {...bindings,
-      pressedScancodes: IntSet.add(key.scancode, bindings.pressedScancodes),
-      lastDownKey: Some(id)},
+      {
+        ...bindings,
+        pressedScancodes: IntSet.add(key.scancode, bindings.pressedScancodes),
+        lastDownKey: Some(id),
+      },
     );
   };
 
@@ -464,25 +469,44 @@ module Make = (Config: {
     };
 
   let keyUp = (~context, ~key, bindings) => {
-    let pressedScancodes = IntSet.remove(key.scancode, bindings.pressedScancodes);
-    let bindings = {
-      ...bindings,
-      suppressText: false,
-      pressedScancodes,
-    };
+    let pressedScancodes =
+      IntSet.remove(key.scancode, bindings.pressedScancodes);
+    let bindings = {...bindings, suppressText: false, pressedScancodes};
 
     // If everything has been released, fire an [AllKeysReleased] event,
     // in case anything is listening for it.
-    let initialEffects = if (IntSet.is_empty(pressedScancodes)) {
-      let (_bindings, effect) = handleKeyCore(~context, AllKeysReleased, bindings);
-      effect
-    } else {
-      []
-    }
+    let initialEffects =
+      if (IntSet.is_empty(pressedScancodes)) {
+        let releaseBindings =
+          bindings.bindings
+          |> List.filter_map(applyKeyToBinding(~context, AllKeysReleased));
+
+        let effect =
+          switch (releaseBindings) {
+          | [hd, ..._] =>
+            switch (hd.action) {
+            | Dispatch(payload) => [Execute(payload)]
+            | _ => []
+            }
+          | [] => []
+          };
+
+        effect
+        |> List.iter(
+             fun
+             | Execute(_) => prerr_endline("EXECUTE")
+             | Unhandled(_) => prerr_endline("UNHANDLED")
+             | Text(txt) => prerr_endline("TEXT: " ++ txt),
+           );
+
+        effect;
+      } else {
+        [];
+      };
 
     let (bindings, effects) = handleKeyCore(~context, Up(key), bindings);
 
-    (bindings, effects @ initialEffects)
+    (bindings, effects @ initialEffects);
   };
 
   let empty = {
