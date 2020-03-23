@@ -8,6 +8,12 @@ type keyPress = {
   modifiers: Modifiers.t,
 };
 
+module IntSet =
+  Set.Make({
+    let compare = Stdlib.compare;
+    type t = int;
+  });
+
 module type Input = {
   type payload;
   type context;
@@ -87,7 +93,8 @@ module Make = (Config: {
 
   type gesture =
     | Down(keyDownId, keyPress)
-    | Up(keyPress);
+    | Up(keyPress)
+    | AllKeysReleased;
 
   type textEntry = {
     keyDownId,
@@ -100,6 +107,7 @@ module Make = (Config: {
     bindings: list(binding),
     text: list(textEntry),
     keys: list(gesture),
+    pressedScancodes: IntSet.t,
   };
 
   let concat = (first, second) => {
@@ -108,6 +116,7 @@ module Make = (Config: {
     bindings: first.bindings @ second.bindings,
     keys: [],
     text: [],
+    pressedScancodes: IntSet.empty,
   };
 
   let keyMatches = (keyMatcher, key: gesture) => {
@@ -122,6 +131,7 @@ module Make = (Config: {
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
         | (Keyup(Keycode(keycode, mods)), Up(key)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
+        | (AllKeysReleased, AllKeysReleased) => true
         | _ => false
         };
       }
@@ -170,22 +180,23 @@ module Make = (Config: {
            )
          );
 
-    let onlyDownKeys =
+    let keysWithoutUps =
       keys
       |> List.filter_map(
            fun
+           | AllKeysReleased => None
            | Down(id, key) => Some(Down(id, key))
            | Up(key) => None,
          );
 
-    let bindingsWithJustKeyDown =
-      onlyDownKeys
+    let bindingsWithoutUpKey =
+      keysWithoutUps
       |> List.fold_left(
            (acc, curr) => {applyKeyToBindings(~context, curr, acc)},
            unusedBindings,
          );
 
-    bindingsWithKeyUp @ bindingsWithJustKeyDown;
+    bindingsWithKeyUp @ bindingsWithoutUpKey;
   };
 
   let addBinding = (sequence, enabled, payload, keyBindings) => {
@@ -231,6 +242,7 @@ module Make = (Config: {
     keys
     |> List.iter(curr => {
          switch (curr) {
+         | AllKeysReleased => ()
          | Up(_key) => ()
          | Down(id, _key) => Hashtbl.add(ret, id, true)
          }
@@ -428,7 +440,11 @@ module Make = (Config: {
     handleKeyCore(
       ~context,
       Down(id, key),
-      {...bindings, lastDownKey: Some(id)},
+      {
+        ...bindings,
+        pressedScancodes: IntSet.add(key.scancode, bindings.pressedScancodes),
+        lastDownKey: Some(id),
+      },
     );
   };
 
@@ -450,8 +466,40 @@ module Make = (Config: {
       };
     };
 
+  let getEffectsForReleaseBindings = (~context, bindings) => {
+    let releaseBindings =
+      bindings.bindings
+      |> List.filter_map(applyKeyToBinding(~context, AllKeysReleased));
+
+    let rec loop = bindings =>
+      switch (bindings) {
+      // For '<release>', only care about dispatch actions
+      | [{action: Dispatch(payload), _}, ..._] => [Execute(payload)]
+
+      | [hd, ...tail] => loop(tail)
+      | [] => []
+      };
+
+    loop(releaseBindings);
+  };
+
   let keyUp = (~context, ~key, bindings) => {
-    handleKeyCore(~context, Up(key), {...bindings, suppressText: false});
+    let pressedScancodes =
+      IntSet.remove(key.scancode, bindings.pressedScancodes);
+    let bindings = {...bindings, suppressText: false, pressedScancodes};
+
+    // If everything has been released, fire an [AllKeysReleased] event,
+    // in case anything is listening for it.
+    let initialEffects =
+      if (IntSet.is_empty(pressedScancodes)) {
+        getEffectsForReleaseBindings(~context, bindings);
+      } else {
+        [];
+      };
+
+    let (bindings, effects) = handleKeyCore(~context, Up(key), bindings);
+
+    (bindings, effects @ initialEffects);
   };
 
   let empty = {
@@ -460,5 +508,6 @@ module Make = (Config: {
     lastDownKey: None,
     bindings: [],
     keys: [],
+    pressedScancodes: IntSet.empty,
   };
 };

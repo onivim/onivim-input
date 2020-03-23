@@ -51,7 +51,8 @@ module Matcher: {
 
   type t =
     | Keydown(keyMatcher)
-    | Keyup(keyMatcher);
+    | Keyup(keyMatcher)
+    | AllKeysReleased;
 
   type sequence = list(t);
 

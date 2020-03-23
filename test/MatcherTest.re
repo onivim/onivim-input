@@ -135,6 +135,10 @@ describe("Matcher", ({describe, _}) => {
       let result = defaultParse("esc");
       expect.equal(result, Ok([Keydown(Keycode(99, Modifiers.none))]));
     });
+    test("all keys released", ({expect}) => {
+      let result = defaultParse("<RELEASE>");
+      expect.equal(result, Ok([AllKeysReleased]));
+    });
     test("vim bindings", ({expect}) => {
       let result = defaultParse("<a>");
       expect.equal(result, Ok([Keydown(Keycode(1, Modifiers.none))]));
