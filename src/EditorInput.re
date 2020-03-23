@@ -466,6 +466,23 @@ module Make = (Config: {
       };
     };
 
+  let getEffectsForReleaseBindings = (~context, bindings) => {
+    let releaseBindings =
+      bindings.bindings
+      |> List.filter_map(applyKeyToBinding(~context, AllKeysReleased));
+
+    let rec loop = bindings =>
+      switch (bindings) {
+      // For '<release>', only care about dispatch actions
+      | [{action: Dispatch(payload), _}, ..._] => [Execute(payload)]
+
+      | [hd, ...tail] => loop(tail)
+      | [] => []
+      };
+
+    loop(releaseBindings);
+  };
+
   let keyUp = (~context, ~key, bindings) => {
     let pressedScancodes =
       IntSet.remove(key.scancode, bindings.pressedScancodes);
@@ -475,21 +492,7 @@ module Make = (Config: {
     // in case anything is listening for it.
     let initialEffects =
       if (IntSet.is_empty(pressedScancodes)) {
-        let releaseBindings =
-          bindings.bindings
-          |> List.filter_map(applyKeyToBinding(~context, AllKeysReleased));
-
-        let effect =
-          switch (releaseBindings) {
-          | [hd, ..._] =>
-            switch (hd.action) {
-            | Dispatch(payload) => [Execute(payload)]
-            | _ => []
-            }
-          | [] => []
-          };
-
-        effect;
+        getEffectsForReleaseBindings(~context, bindings);
       } else {
         [];
       };
