@@ -39,6 +39,8 @@ module type Input = {
 
   let isPending: t => bool;
 
+  let count: t => int;
+
   let concat: (t, t) => t;
 
   let empty: t;
@@ -109,6 +111,8 @@ module Make = (Config: {
     keys: list(gesture),
     pressedScancodes: IntSet.t,
   };
+
+  let count = ({bindings, _}) => List.length(bindings);
 
   let concat = (first, second) => {
     suppressText: false,
