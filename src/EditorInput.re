@@ -83,7 +83,7 @@ module Make = (Config: {
 
   type matchState =
     | Matched
-    | Matcher(Matcher.t);
+    | Unmatched(Matcher.t);
 
   type binding = {
     id: int,
@@ -149,13 +149,15 @@ module Make = (Config: {
       None;
     } else {
       switch (binding.matcher) {
-      | Matcher(Matcher.AllKeysReleased) when key == AllKeysReleased =>
+      | Unmatched(Matcher.AllKeysReleased) when key == AllKeysReleased =>
         Some({...binding, matcher: Matched})
-      | Matcher(Matcher.Sequence([hd, ...tail])) when keyMatches(hd, key) =>
+      | Unmatched(Matcher.Sequence([hd, ...tail])) when keyMatches(hd, key) =>
         if (tail == []) {
+          // If the sequence is fully exercise, we're matched!
           Some({...binding, matcher: Matched});
         } else {
-          Some({...binding, matcher: Matcher(Matcher.Sequence(tail))});
+          // Otherwise, pull the matched key off, and leave the remainder of keys to match
+          Some({...binding, matcher: Unmatched(Matcher.Sequence(tail))});
         }
       | _ => None
       };
@@ -214,7 +216,7 @@ module Make = (Config: {
     let {bindings, _} = keyBindings;
     let id = UniqueId.get();
     let bindings = [
-      {id, matcher: Matcher(matcher), action: Dispatch(command), enabled},
+      {id, matcher: Unmatched(matcher), action: Dispatch(command), enabled},
       ...bindings,
     ];
 
@@ -226,7 +228,7 @@ module Make = (Config: {
     let {bindings, _} = keyBindings;
     let id = UniqueId.get();
     let bindings = [
-      {id, matcher: Matcher(matcher), action: Remap(keys), enabled},
+      {id, matcher: Unmatched(matcher), action: Remap(keys), enabled},
       ...bindings,
     ];
 
