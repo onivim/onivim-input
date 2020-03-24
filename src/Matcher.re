@@ -40,45 +40,58 @@ let parse = (~getKeycode, ~getScancode, str) => {
     loop(Modifiers.none, modList);
   };
 
-  let finish = r => {
-    let f = ((activation, key, mods)) => {
-      switch (getKeycode(key)) {
-      | None => Error("Unrecognized key: " ++ Key.toString(key))
-      | Some(code) =>
-        switch (activation) {
-        | Matcher_internal.Keydown =>
-          Ok(Keydown(Keycode(code, internalModsToMods(mods))))
-        | Matcher_internal.Keyup =>
-          Ok(Keyup(Keycode(code, internalModsToMods(mods))))
-        }
-      };
-    };
+  module Internal = {
+    let sequence: list(result('a, 'b)) => result(list('a), 'b) =
+      (items: list(result('a, 'b))) => {
+        let rec loop = (items, acc) => {
+          switch (items) {
+          | [Ok(hd), ...tail] => loop(tail, [hd, ...acc])
+          | [Error(msg), ...tail] => Error(msg)
+          | [] => Ok(acc |> List.rev)
+          };
+        };
 
+        loop(items, []);
+      };
+  };
+
+  let finish = r => {
     switch (r) {
-    | Matcher_internal.Chord(keys) => Error("Not yet supported")
+    | Matcher_internal.Chord(keys) =>
+      let resolveChordKey = ((key, mods)) => {
+        switch (getKeycode(key)) {
+        | None => Error("Unrecognized key: " ++ Key.toString(key))
+        | Some(code) => Ok(Keycode(code, internalModsToMods(mods)))
+        };
+      };
+      keys
+      |> List.map(resolveChordKey)
+      |> Internal.sequence
+      |> Result.map(out => Chord(out));
     | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
     | Matcher_internal.Sequence(keys) =>
-      let bindings = keys |> List.map(f);
+      let resolveSequenceKey:
+        Matcher_internal.keyMatcher => result(keyPress, string) = (
+        ((activation, key, mods)) => {
+          switch (getKeycode(key)) {
+          | None => Error("Unrecognized key: " ++ Key.toString(key))
+          | Some(code) =>
+            switch (activation) {
+            | Matcher_internal.Keydown =>
+              Ok(Keydown(Keycode(code, internalModsToMods(mods))))
+            | Matcher_internal.Keyup =>
+              Ok(Keyup(Keycode(code, internalModsToMods(mods))))
+            }
+          };
+        }
+      );
+      let bindings: list(result(keyPress, string)) =
+        keys |> List.map(resolveSequenceKey);
 
-      let errors = bindings |> List.filter(Result.is_error);
+      let out: result(list(keyPress), string) =
+        bindings |> Internal.sequence;
 
-      if (List.length(errors) > 0) {
-        let stringErrors =
-          errors
-          |> List.filter_map(
-               fun
-               | Error(msg) => Some(msg)
-               | Ok(_) => None,
-             );
-
-        let firstError: string = List.nth(stringErrors, 0);
-        Error(firstError);
-      } else {
-        bindings
-        |> List.map(Result.to_option)
-        |> List.filter_map(v => v)
-        |> (out => Ok(Sequence(out)));
-      };
+      out |> Result.map(out => Sequence(out));
     };
   };
 
