@@ -8,6 +8,8 @@ type activation =
   | Keyup
   | Keydown;
 
+type keyMatcher = (activation, Key.t, list(modifier));
+
 type t =
-  | Key((activation, Key.t, list(modifier)))
+  | Sequence(list(keyMatcher))
   | AllKeysReleased;

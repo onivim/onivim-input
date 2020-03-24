@@ -31,10 +31,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAB",
            );
@@ -42,7 +42,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         bindings
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              "commandA",
            );
@@ -61,7 +61,7 @@ describe("EditorInput", ({describe, _}) => {
     test("basic release case", ({expect}) => {
       let (bindings, _id) =
         Input.empty
-        |> Input.addBinding([AllKeysReleased], _ => true, "commandA");
+        |> Input.addBinding(AllKeysReleased, _ => true, "commandA");
 
       let (bindings, effects) =
         Input.keyDown(~context=true, ~key=aKeyNoModifiers, bindings);
@@ -78,7 +78,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              "commandA",
            );
@@ -90,10 +90,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAB",
            );
@@ -115,10 +115,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAB",
            );
@@ -144,10 +144,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAB",
            );
@@ -169,10 +169,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "command1",
            );
@@ -195,10 +195,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(1, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAA",
            );
@@ -217,10 +217,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAB",
            );
@@ -244,10 +244,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keyup(Keycode(1, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandA!A",
            );
@@ -266,10 +266,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(3, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAC",
            );
@@ -277,7 +277,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         bindings
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              "commandA",
            );
@@ -301,10 +301,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(3, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              "commandAC",
            );
@@ -312,7 +312,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         bindings
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              "commandA",
            );
@@ -337,7 +337,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              identity,
              "command1",
            );
@@ -352,10 +352,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(3, Modifiers.none)),
-             ],
+             ]),
              identity,
              "commandAC",
            );
@@ -371,7 +371,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addBinding(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              "command1",
            );
@@ -395,7 +395,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              [bKeyNoModifiers],
            );
@@ -410,7 +410,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              [bKeyNoModifiers],
            );
@@ -418,7 +418,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         bindings
         |> Input.addMapping(
-             [Keydown(Keycode(2, Modifiers.none))],
+             Sequence([Keydown(Keycode(2, Modifiers.none))]),
              _ => true,
              [cKeyNoModifiers],
            );
@@ -433,7 +433,7 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              [aKeyNoModifiers],
            );
@@ -448,10 +448,10 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [
+             Sequence([
                Keydown(Keycode(1, Modifiers.none)),
                Keydown(Keycode(2, Modifiers.none)),
-             ],
+             ]),
              _ => true,
              [cKeyNoModifiers],
            );
@@ -483,14 +483,14 @@ describe("EditorInput", ({describe, _}) => {
       let (bindings, _id) =
         Input.empty
         |> Input.addMapping(
-             [Keydown(Keycode(1, Modifiers.none))],
+             Sequence([Keydown(Keycode(1, Modifiers.none))]),
              _ => true,
              [bKeyNoModifiers],
            );
       let (bindings, _id) =
         bindings
         |> Input.addBinding(
-             [Keydown(Keycode(2, Modifiers.none))],
+             Sequence([Keydown(Keycode(2, Modifiers.none))]),
              _ => true,
              "command2",
            );

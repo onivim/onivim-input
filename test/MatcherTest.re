@@ -116,7 +116,7 @@ describe("Matcher", ({describe, _}) => {
         let (keyString, matcher) = case;
         let result = defaultParse(keyString);
 
-        expect.equal(result, Ok([matcher]));
+        expect.equal(result, Ok(Sequence([matcher])));
       };
 
       let _: unit = cases |> List.iter(runCase);
@@ -124,112 +124,155 @@ describe("Matcher", ({describe, _}) => {
     });
     test("simple parsing", ({expect}) => {
       let result = defaultParse("a");
-      expect.equal(result, Ok([Keydown(Keycode(1, Modifiers.none))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, Modifiers.none))])),
+      );
 
       let result = defaultParse("b");
-      expect.equal(result, Ok([Keydown(Keycode(2, Modifiers.none))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(2, Modifiers.none))])),
+      );
 
       let result = defaultParse("c");
       expect.equal(Result.is_error(result), true);
 
       let result = defaultParse("esc");
-      expect.equal(result, Ok([Keydown(Keycode(99, Modifiers.none))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(99, Modifiers.none))])),
+      );
     });
     test("all keys released", ({expect}) => {
       let result = defaultParse("<RELEASE>");
-      expect.equal(result, Ok([AllKeysReleased]));
+      expect.equal(result, Ok(AllKeysReleased));
     });
     test("vim bindings", ({expect}) => {
       let result = defaultParse("<a>");
-      expect.equal(result, Ok([Keydown(Keycode(1, Modifiers.none))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, Modifiers.none))])),
+      );
 
       let result = defaultParse("<c-a>");
-      expect.equal(result, Ok([Keydown(Keycode(1, modifiersControl))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, modifiersControl))])),
+      );
 
       let result = defaultParse("<S-a>");
-      expect.equal(result, Ok([Keydown(Keycode(1, modifiersShift))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, modifiersShift))])),
+      );
     });
     test("vscode bindings", ({expect}) => {
       let result = defaultParse("Ctrl+a");
-      expect.equal(result, Ok([Keydown(Keycode(1, modifiersControl))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, modifiersControl))])),
+      );
 
       let result = defaultParse("ctrl+a");
-      expect.equal(result, Ok([Keydown(Keycode(1, modifiersControl))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keydown(Keycode(1, modifiersControl))])),
+      );
     });
     test("binding list", ({expect}) => {
       let result = defaultParse("ab");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keydown(Keycode(2, Modifiers.none)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keydown(Keycode(2, Modifiers.none)),
+          ]),
+        ),
       );
 
       let result = defaultParse("a b");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keydown(Keycode(2, Modifiers.none)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keydown(Keycode(2, Modifiers.none)),
+          ]),
+        ),
       );
 
       let result = defaultParse("<a>b");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keydown(Keycode(2, Modifiers.none)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keydown(Keycode(2, Modifiers.none)),
+          ]),
+        ),
       );
       let result = defaultParse("<a><b>");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keydown(Keycode(2, Modifiers.none)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keydown(Keycode(2, Modifiers.none)),
+          ]),
+        ),
       );
 
       let result = defaultParse("<c-a> Ctrl+b");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, modifiersControl)),
-          Keydown(Keycode(2, modifiersControl)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, modifiersControl)),
+            Keydown(Keycode(2, modifiersControl)),
+          ]),
+        ),
       );
     });
     test("keyup", ({expect}) => {
       let result = defaultParse("!a");
-      expect.equal(result, Ok([Keyup(Keycode(1, Modifiers.none))]));
+      expect.equal(
+        result,
+        Ok(Sequence([Keyup(Keycode(1, Modifiers.none))])),
+      );
 
       let result = defaultParse("a!a");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keyup(Keycode(1, Modifiers.none)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keyup(Keycode(1, Modifiers.none)),
+          ]),
+        ),
       );
 
       let result = defaultParse("a !Ctrl+a");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keyup(Keycode(1, modifiersControl)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keyup(Keycode(1, modifiersControl)),
+          ]),
+        ),
       );
 
       let result = defaultParse("a !<C-A>");
       expect.equal(
         result,
-        Ok([
-          Keydown(Keycode(1, Modifiers.none)),
-          Keyup(Keycode(1, modifiersControl)),
-        ]),
+        Ok(
+          Sequence([
+            Keydown(Keycode(1, Modifiers.none)),
+            Keyup(Keycode(1, modifiersControl)),
+          ]),
+        ),
       );
     });
   })

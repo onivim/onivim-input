@@ -22,10 +22,9 @@ module type Input = {
 
   type uniqueId;
 
-  let addBinding:
-    (Matcher.sequence, context => bool, command, t) => (t, uniqueId);
+  let addBinding: (Matcher.t, context => bool, command, t) => (t, uniqueId);
   let addMapping:
-    (Matcher.sequence, context => bool, list(keyPress), t) => (t, uniqueId);
+    (Matcher.t, context => bool, list(keyPress), t) => (t, uniqueId);
 
   type effects =
     | Execute(command)
@@ -82,9 +81,13 @@ module Make = (Config: {
     | Dispatch(command)
     | Remap(list(keyPress));
 
+  type matchState =
+    | Matched
+    | Unmatched(Matcher.t);
+
   type binding = {
     id: int,
-    sequence: Matcher.sequence,
+    matcher: matchState,
     action,
     enabled: context => bool,
   };
@@ -135,7 +138,6 @@ module Make = (Config: {
           key.scancode == scancode && Modifiers.equals(mods, key.modifiers)
         | (Keyup(Keycode(keycode, mods)), Up(key)) =>
           key.keycode == keycode && Modifiers.equals(mods, key.modifiers)
-        | (AllKeysReleased, AllKeysReleased) => true
         | _ => false
         };
       }
@@ -146,10 +148,23 @@ module Make = (Config: {
     if (!binding.enabled(context)) {
       None;
     } else {
-      switch (binding.sequence) {
-      | [hd, ...tail] when keyMatches(hd, key) =>
-        Some({...binding, sequence: tail})
-      | [] => None
+      switch (binding.matcher) {
+      | Unmatched(Matcher.AllKeysReleased) when key == AllKeysReleased =>
+        Some({...binding, matcher: Matched})
+      | Unmatched(Matcher.Sequence([hd, ...tail])) when keyMatches(hd, key) =>
+        if (tail == []) {
+          // If the sequence is fully exercise, we're matched!
+          Some({
+            ...binding,
+            matcher: Matched,
+          });
+        } else {
+          // Otherwise, pull the matched key off, and leave the remainder of keys to match
+          Some({
+            ...binding,
+            matcher: Unmatched(Matcher.Sequence(tail)),
+          });
+        }
       | _ => None
       };
     };
@@ -203,11 +218,11 @@ module Make = (Config: {
     bindingsWithKeyUp @ bindingsWithoutUpKey;
   };
 
-  let addBinding = (sequence, enabled, command, keyBindings) => {
+  let addBinding = (matcher, enabled, command, keyBindings) => {
     let {bindings, _} = keyBindings;
     let id = UniqueId.get();
     let bindings = [
-      {id, sequence, action: Dispatch(command), enabled},
+      {id, matcher: Unmatched(matcher), action: Dispatch(command), enabled},
       ...bindings,
     ];
 
@@ -215,11 +230,11 @@ module Make = (Config: {
     (newBindings, id);
   };
 
-  let addMapping = (sequence, enabled, keys, keyBindings) => {
+  let addMapping = (matcher, enabled, keys, keyBindings) => {
     let {bindings, _} = keyBindings;
     let id = UniqueId.get();
     let bindings = [
-      {id, sequence, action: Remap(keys), enabled},
+      {id, matcher: Unmatched(matcher), action: Remap(keys), enabled},
       ...bindings,
     ];
 
@@ -235,7 +250,7 @@ module Make = (Config: {
   };
 
   let getReadyBindings = bindings => {
-    let filter = binding => binding.sequence == [];
+    let filter = binding => binding.matcher == Matched;
 
     bindings |> List.filter(filter);
   };

@@ -49,12 +49,13 @@ module Matcher: {
     | Scancode(int, Modifiers.t)
     | Keycode(int, Modifiers.t);
 
-  type t =
+  type keyPress =
     | Keydown(keyMatcher)
-    | Keyup(keyMatcher)
-    | AllKeysReleased;
+    | Keyup(keyMatcher);
 
-  type sequence = list(t);
+  type t =
+    | Sequence(list(keyPress))
+    | AllKeysReleased;
 
   let parse:
     (
@@ -62,7 +63,7 @@ module Matcher: {
       ~getScancode: Key.t => option(int),
       string
     ) =>
-    result(sequence, string);
+    result(t, string);
 };
 
 type keyPress = {
@@ -79,11 +80,10 @@ module type Input = {
 
   type uniqueId;
 
-  let addBinding:
-    (Matcher.sequence, context => bool, command, t) => (t, uniqueId);
+  let addBinding: (Matcher.t, context => bool, command, t) => (t, uniqueId);
 
   let addMapping:
-    (Matcher.sequence, context => bool, list(keyPress), t) => (t, uniqueId);
+    (Matcher.t, context => bool, list(keyPress), t) => (t, uniqueId);
 
   type effects =
     | Execute(command)

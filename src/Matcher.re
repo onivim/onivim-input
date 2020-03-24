@@ -2,9 +2,12 @@ type keyMatcher =
   | Scancode(int, Modifiers.t)
   | Keycode(int, Modifiers.t);
 
-type t =
+type keyPress =
   | Keydown(keyMatcher)
-  | Keyup(keyMatcher)
+  | Keyup(keyMatcher);
+
+type t =
+  | Sequence(list(keyPress))
   | AllKeysReleased;
 
 type sequence = list(t);
@@ -37,43 +40,43 @@ let parse = (~getKeycode, ~getScancode, str) => {
   };
 
   let finish = r => {
-    let f = parseResult => {
-      switch (parseResult) {
-      | Matcher_internal.Key((activation, key, mods)) =>
-        switch (getKeycode(key)) {
-        | None => Error("Unrecognized key: " ++ Key.toString(key))
-        | Some(code) =>
-          switch (activation) {
-          | Matcher_internal.Keydown =>
-            Ok(Keydown(Keycode(code, internalModsToMods(mods))))
-          | Matcher_internal.Keyup =>
-            Ok(Keyup(Keycode(code, internalModsToMods(mods))))
-          }
+    let f = ((activation, key, mods)) => {
+      switch (getKeycode(key)) {
+      | None => Error("Unrecognized key: " ++ Key.toString(key))
+      | Some(code) =>
+        switch (activation) {
+        | Matcher_internal.Keydown =>
+          Ok(Keydown(Keycode(code, internalModsToMods(mods))))
+        | Matcher_internal.Keyup =>
+          Ok(Keyup(Keycode(code, internalModsToMods(mods))))
         }
-      | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
       };
     };
 
-    let bindings = r |> List.map(f);
+    switch (r) {
+    | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
+    | Matcher_internal.Sequence(keys) =>
+      let bindings = keys |> List.map(f);
 
-    let errors = bindings |> List.filter(Result.is_error);
+      let errors = bindings |> List.filter(Result.is_error);
 
-    if (List.length(errors) > 0) {
-      let stringErrors =
-        errors
-        |> List.filter_map(
-             fun
-             | Error(msg) => Some(msg)
-             | Ok(_) => None,
-           );
+      if (List.length(errors) > 0) {
+        let stringErrors =
+          errors
+          |> List.filter_map(
+               fun
+               | Error(msg) => Some(msg)
+               | Ok(_) => None,
+             );
 
-      let firstError: string = List.nth(stringErrors, 0);
-      Error(firstError);
-    } else {
-      bindings
-      |> List.map(Result.to_option)
-      |> List.filter_map(v => v)
-      |> (out => Ok(out));
+        let firstError: string = List.nth(stringErrors, 0);
+        Error(firstError);
+      } else {
+        bindings
+        |> List.map(Result.to_option)
+        |> List.filter_map(v => v)
+        |> (out => Ok(Sequence(out)));
+      };
     };
   };
 
