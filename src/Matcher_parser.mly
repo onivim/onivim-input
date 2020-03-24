@@ -11,11 +11,20 @@
 
 main:
 | ALLKEYSRELEASED { Matcher_internal.AllKeysReleased }
-| phrase = list(expr) EOF { Matcher_internal.Sequence(phrase) }
+| seq = list(sequence) EOF { Matcher_internal.Sequence(seq) }
 
-expr:
+sequence:
+| key = keyup_bindings { key }
+| key = keydown_bindings { key }
+
+chord:
+| modifiers = list(MODIFIER); binding = BINDING { (binding, modifiers) }
+
+keyup_bindings:
 | EXCLAMATION; LT e = keyup_binding GT { e }
 | EXCLAMATION; s = keyup_binding { s }
+
+keydown_bindings:
 | LT e = keydown_binding GT { e }
 | s = keydown_binding { s }
 

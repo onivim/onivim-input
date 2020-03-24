@@ -7,6 +7,7 @@ type keyPress =
   | Keyup(keyMatcher);
 
 type t =
+  | Chord(list(keyMatcher))
   | Sequence(list(keyPress))
   | AllKeysReleased;
 
@@ -54,6 +55,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
     };
 
     switch (r) {
+    | Matcher_internal.Chord(keys) => Error("Not yet supported")
     | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
     | Matcher_internal.Sequence(keys) =>
       let bindings = keys |> List.map(f);

@@ -54,6 +54,7 @@ module Matcher: {
     | Keyup(keyMatcher);
 
   type t =
+    | Chord(list(keyMatcher))
     | Sequence(list(keyPress))
     | AllKeysReleased;
 
