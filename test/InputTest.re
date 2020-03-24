@@ -1,23 +1,14 @@
 open TestFramework;
 open EditorInput;
 
-let aKeyNoModifiers: keyPress = {
-  scancode: 101,
-  keycode: 1,
-  modifiers: Modifiers.none,
-};
+let aKeyNoModifiers =
+  KeyPress.{scancode: 101, keycode: 1, modifiers: Modifiers.none};
 
-let bKeyNoModifiers: keyPress = {
-  scancode: 102,
-  keycode: 2,
-  modifiers: Modifiers.none,
-};
+let bKeyNoModifiers =
+  KeyPress.{scancode: 102, keycode: 2, modifiers: Modifiers.none};
 
-let cKeyNoModifiers: keyPress = {
-  scancode: 103,
-  keycode: 3,
-  modifiers: Modifiers.none,
-};
+let cKeyNoModifiers =
+  KeyPress.{scancode: 103, keycode: 3, modifiers: Modifiers.none};
 
 module Input =
   EditorInput.Make({
