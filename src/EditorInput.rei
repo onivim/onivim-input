@@ -101,6 +101,8 @@ module type Input = {
   */
   let isPending: t => bool;
 
+  let count: t => int;
+
   let concat: (t, t) => t;
 
   let empty: t;
