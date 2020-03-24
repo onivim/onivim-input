@@ -9,6 +9,11 @@ module IntSet =
     type t = int;
   });
 
+type effect('command) =
+  | Execute('command)
+  | Text(string)
+  | Unhandled(KeyPress.t);
+
 module type Input = {
   type command;
   type context;
@@ -21,16 +26,12 @@ module type Input = {
   let addMapping:
     (Matcher.t, context => bool, list(KeyPress.t), t) => (t, uniqueId);
 
-  type effects =
-    | Execute(command)
-    | Text(string)
-    | Unhandled(KeyPress.t);
-
   let keyDown:
-    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let text: (~text: string, t) => (t, list(effects));
-  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let flush: (~context: context, t) => (t, list(effects));
+    (~context: context, ~key: KeyPress.t, t) => (t, list(effect(command)));
+  let text: (~text: string, t) => (t, list(effect(command)));
+  let keyUp:
+    (~context: context, ~key: KeyPress.t, t) => (t, list(effect(command)));
+  let flush: (~context: context, t) => (t, list(effect(command)));
 
   let isPending: t => bool;
 
@@ -67,11 +68,6 @@ module Make = (Config: {
                }) => {
   type command = Config.command;
   type context = Config.context;
-
-  type effects =
-    | Execute(command)
-    | Text(string)
-    | Unhandled(KeyPress.t);
 
   type action =
     | Dispatch(command)
