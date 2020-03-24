@@ -1,12 +1,7 @@
 module Key = Key;
 module Modifiers = Modifiers;
 module Matcher = Matcher;
-
-type keyPress = {
-  scancode: int,
-  keycode: int,
-  modifiers: Modifiers.t,
-};
+module KeyPress = KeyPress;
 
 module IntSet =
   Set.Make({
@@ -24,16 +19,16 @@ module type Input = {
 
   let addBinding: (Matcher.t, context => bool, command, t) => (t, uniqueId);
   let addMapping:
-    (Matcher.t, context => bool, list(keyPress), t) => (t, uniqueId);
+    (Matcher.t, context => bool, list(KeyPress.t), t) => (t, uniqueId);
 
   type effects =
     | Execute(command)
     | Text(string)
-    | Unhandled(keyPress);
+    | Unhandled(KeyPress.t);
 
-  let keyDown: (~context: context, ~key: keyPress, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let text: (~text: string, t) => (t, list(effects));
-  let keyUp: (~context: context, ~key: keyPress, t) => (t, list(effects));
+  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));
 
   let isPending: t => bool;
@@ -75,11 +70,11 @@ module Make = (Config: {
   type effects =
     | Execute(command)
     | Text(string)
-    | Unhandled(keyPress);
+    | Unhandled(KeyPress.t);
 
   type action =
     | Dispatch(command)
-    | Remap(list(keyPress));
+    | Remap(list(KeyPress.t));
 
   type matchState =
     | Matched
@@ -97,8 +92,8 @@ module Make = (Config: {
   type keyDownId = int;
 
   type gesture =
-    | Down(keyDownId, keyPress)
-    | Up(keyPress)
+    | Down(keyDownId, KeyPress.t)
+    | Up(KeyPress.t)
     | AllKeysReleased;
 
   type textEntry = {
@@ -504,7 +499,7 @@ module Make = (Config: {
 
   let keyUp = (~context, ~key, bindings) => {
     let pressedScancodes =
-      IntSet.remove(key.scancode, bindings.pressedScancodes);
+      IntSet.remove(KeyPress.(key.scancode), bindings.pressedScancodes);
     let bindings = {...bindings, suppressText: false, pressedScancodes};
 
     // If everything has been released, fire an [AllKeysReleased] event,
