@@ -15,7 +15,7 @@ module IntSet =
   });
 
 module type Input = {
-  type payload;
+  type command;
   type context;
 
   type t;
@@ -23,12 +23,12 @@ module type Input = {
   type uniqueId;
 
   let addBinding:
-    (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
+    (Matcher.sequence, context => bool, command, t) => (t, uniqueId);
   let addMapping:
     (Matcher.sequence, context => bool, list(keyPress), t) => (t, uniqueId);
 
   type effects =
-    | Execute(payload)
+    | Execute(command)
     | Text(string)
     | Unhandled(keyPress);
 
@@ -65,19 +65,19 @@ module KeyDownId = {
 };
 
 module Make = (Config: {
-                 type payload;
+                 type command;
                  type context;
                }) => {
-  type payload = Config.payload;
+  type command = Config.command;
   type context = Config.context;
 
   type effects =
-    | Execute(payload)
+    | Execute(command)
     | Text(string)
     | Unhandled(keyPress);
 
   type action =
-    | Dispatch(payload)
+    | Dispatch(command)
     | Remap(list(keyPress));
 
   type binding = {
@@ -199,11 +199,11 @@ module Make = (Config: {
     bindingsWithKeyUp @ bindingsWithoutUpKey;
   };
 
-  let addBinding = (sequence, enabled, payload, keyBindings) => {
+  let addBinding = (sequence, enabled, command, keyBindings) => {
     let {bindings, _} = keyBindings;
     let id = UniqueId.get();
     let bindings = [
-      {id, sequence, action: Dispatch(payload), enabled},
+      {id, sequence, action: Dispatch(command), enabled},
       ...bindings,
     ];
 
@@ -309,10 +309,10 @@ module Make = (Config: {
           let remainingText = getTextNotMatchingKeys(remainingText, revKeys);
 
           switch (binding.action) {
-          | Dispatch(payload) => (
+          | Dispatch(command) => (
               remainingKeys,
               remainingText,
-              [Execute(payload), ...effects],
+              [Execute(command), ...effects],
             )
           | Remap(keys) =>
             let newKeys =
@@ -416,9 +416,9 @@ module Make = (Config: {
       | Some(binding) =>
         let text = getTextNotMatchingKeys(bindings.text, keys);
         switch (binding.action) {
-        | Dispatch(payload) => (
+        | Dispatch(command) => (
             reset({...bindings, suppressText: true, text}),
-            [Execute(payload)],
+            [Execute(command)],
           )
         | Remap(remappedKeys) =>
           let keys =
@@ -474,7 +474,7 @@ module Make = (Config: {
     let rec loop = bindings =>
       switch (bindings) {
       // For '<release>', only care about dispatch actions
-      | [{action: Dispatch(payload), _}, ..._] => [Execute(payload)]
+      | [{action: Dispatch(command), _}, ..._] => [Execute(command)]
 
       | [hd, ...tail] => loop(tail)
       | [] => []

@@ -72,7 +72,7 @@ type keyPress = {
 };
 
 module type Input = {
-  type payload;
+  type command;
   type context;
 
   type t;
@@ -80,13 +80,13 @@ module type Input = {
   type uniqueId;
 
   let addBinding:
-    (Matcher.sequence, context => bool, payload, t) => (t, uniqueId);
+    (Matcher.sequence, context => bool, command, t) => (t, uniqueId);
 
   let addMapping:
     (Matcher.sequence, context => bool, list(keyPress), t) => (t, uniqueId);
 
   type effects =
-    | Execute(payload)
+    | Execute(command)
     | Text(string)
     | Unhandled(keyPress);
 
@@ -108,7 +108,7 @@ module type Input = {
 
 module Make:
   (Context: {
-     type payload;
+     type command;
      type context;
    }) =>
-   Input with type payload = Context.payload and type context = Context.context;
+   Input with type command = Context.command and type context = Context.context;
