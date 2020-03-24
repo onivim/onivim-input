@@ -73,11 +73,9 @@ module KeyPress: {
     modifiers: Modifiers.t,
   };
 
-  let toString: (
+  let toString:
     // The name of the 'meta' key. Defaults to "Meta".
-    ~meta: string=?,
-    ~keyCodeToString: int => string,
-    t) => string;
+    (~meta: string=?, ~keyCodeToString: int => string, t) => string;
 };
 
 module type Input = {
@@ -103,7 +101,8 @@ module type Input = {
     // This can happen if there is no binding associated with a key.
     | Unhandled(KeyPress.t);
 
-  let keyDown: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
+  let keyDown:
+    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let text: (~text: string, t) => (t, list(effects));
   let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));

@@ -26,7 +26,8 @@ module type Input = {
     | Text(string)
     | Unhandled(KeyPress.t);
 
-  let keyDown: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
+  let keyDown:
+    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let text: (~text: string, t) => (t, list(effects));
   let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
   let flush: (~context: context, t) => (t, list(effects));
