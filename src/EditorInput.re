@@ -154,10 +154,16 @@ module Make = (Config: {
       | Unmatched(Matcher.Sequence([hd, ...tail])) when keyMatches(hd, key) =>
         if (tail == []) {
           // If the sequence is fully exercise, we're matched!
-          Some({...binding, matcher: Matched});
+          Some({
+            ...binding,
+            matcher: Matched,
+          });
         } else {
           // Otherwise, pull the matched key off, and leave the remainder of keys to match
-          Some({...binding, matcher: Unmatched(Matcher.Sequence(tail))});
+          Some({
+            ...binding,
+            matcher: Unmatched(Matcher.Sequence(tail)),
+          });
         }
       | _ => None
       };
