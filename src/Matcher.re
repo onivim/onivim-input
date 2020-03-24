@@ -53,8 +53,6 @@ let parse = (~getKeycode, ~getScancode, str) => {
       };
     };
 
-    //let bindings = r |> List.map(f);
-
     switch (r) {
     | Matcher_internal.AllKeysReleased => Ok(AllKeysReleased)
     | Matcher_internal.Sequence(keys) =>
