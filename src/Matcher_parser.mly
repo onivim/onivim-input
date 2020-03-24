@@ -2,6 +2,7 @@
 %token <Key.t> BINDING
 %token ALLKEYSRELEASED
 %token LT GT
+%token LPAREN RPAREN
 %token EXCLAMATION
 %token EOF
 
@@ -10,7 +11,8 @@
 %%
 
 main:
-| ALLKEYSRELEASED { Matcher_internal.AllKeysReleased }
+| ALLKEYSRELEASED EOF { Matcher_internal.AllKeysReleased }
+| LPAREN; chord = list(chord) RPAREN; EOF { Matcher_internal.Chord(chord) }
 | seq = list(sequence) EOF { Matcher_internal.Sequence(seq) }
 
 sequence:

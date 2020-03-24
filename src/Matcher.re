@@ -46,7 +46,7 @@ let parse = (~getKeycode, ~getScancode, str) => {
         let rec loop = (items, acc) => {
           switch (items) {
           | [Ok(hd), ...tail] => loop(tail, [hd, ...acc])
-          | [Error(msg), ...tail] => Error(msg)
+          | [Error(msg), ..._] => Error(msg)
           | [] => Ok(acc |> List.rev)
           };
         };

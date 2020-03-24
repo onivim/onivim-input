@@ -80,6 +80,8 @@ rule token = parse
  { BINDING (Character (i)) }
 | '<' { LT }
 | '>' { GT }
+| '(' { LPAREN }
+| ')' { RPAREN }
 | eof { EOF }
 | _ { raise Error }
 
