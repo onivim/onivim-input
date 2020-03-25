@@ -78,16 +78,6 @@ module KeyPress: {
     (~meta: string=?, ~keyCodeToString: int => string, t) => string;
 };
 
-type effect('command) =
-  // The `Execute` effect means that a key-sequence associated with `command`
-  // has been completed, and the `command` should now be executed.
-  | Execute('command)
-  // The `Text` effect occurs when an unhandled `text` input event occurs.
-  | Text(string)
-  // The `Unhandled` effect occurs when an unhandled `keyDown` input event occurs.
-  // This can happen if there is no binding associated with a key.
-  | Unhandled(KeyPress.t);
-
 module type Input = {
   type command;
   type context;
@@ -101,12 +91,21 @@ module type Input = {
   let addMapping:
     (Matcher.t, context => bool, list(KeyPress.t), t) => (t, uniqueId);
 
+  type effects =
+    // The `Execute` effect means that a key-sequence associated with `command`
+    // has been completed, and the `command` should now be executed.
+    | Execute(command)
+    // The `Text` effect occurs when an unhandled `text` input event occurs.
+    | Text(string)
+    // The `Unhandled` effect occurs when an unhandled `keyDown` input event occurs.
+    // This can happen if there is no binding associated with a key.
+    | Unhandled(KeyPress.t);
+
   let keyDown:
-    (~context: context, ~key: KeyPress.t, t) => (t, list(effect(command)));
-  let text: (~text: string, t) => (t, list(effect(command)));
-  let keyUp:
-    (~context: context, ~key: KeyPress.t, t) => (t, list(effect(command)));
-  let flush: (~context: context, t) => (t, list(effect(command)));
+    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
+  let text: (~text: string, t) => (t, list(effects));
+  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
+  let flush: (~context: context, t) => (t, list(effects));
 
   /**
   [isPending(bindings)] returns true if there is a potential
