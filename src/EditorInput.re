@@ -21,16 +21,15 @@ module type Input = {
   let addMapping:
     (Matcher.t, context => bool, list(KeyPress.t), t) => (t, uniqueId);
 
-  type effects =
+  type effect =
     | Execute(command)
     | Text(string)
     | Unhandled(KeyPress.t);
 
-  let keyDown:
-    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let text: (~text: string, t) => (t, list(effects));
-  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let flush: (~context: context, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: KeyPress.t, t) => (t, list(effect));
+  let text: (~text: string, t) => (t, list(effect));
+  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effect));
+  let flush: (~context: context, t) => (t, list(effect));
 
   let isPending: t => bool;
 
@@ -68,7 +67,7 @@ module Make = (Config: {
   type command = Config.command;
   type context = Config.context;
 
-  type effects =
+  type effect =
     | Execute(command)
     | Text(string)
     | Unhandled(KeyPress.t);

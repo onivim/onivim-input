@@ -91,7 +91,7 @@ module type Input = {
   let addMapping:
     (Matcher.t, context => bool, list(KeyPress.t), t) => (t, uniqueId);
 
-  type effects =
+  type effect =
     // The `Execute` effect means that a key-sequence associated with `command`
     // has been completed, and the `command` should now be executed.
     | Execute(command)
@@ -101,11 +101,10 @@ module type Input = {
     // This can happen if there is no binding associated with a key.
     | Unhandled(KeyPress.t);
 
-  let keyDown:
-    (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let text: (~text: string, t) => (t, list(effects));
-  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effects));
-  let flush: (~context: context, t) => (t, list(effects));
+  let keyDown: (~context: context, ~key: KeyPress.t, t) => (t, list(effect));
+  let text: (~text: string, t) => (t, list(effect));
+  let keyUp: (~context: context, ~key: KeyPress.t, t) => (t, list(effect));
+  let flush: (~context: context, t) => (t, list(effect));
 
   /**
   [isPending(bindings)] returns true if there is a potential
