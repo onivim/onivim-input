@@ -13,6 +13,28 @@ module type Input = {
   type command;
   type context;
 
+  module Matcher: {
+    type keyMatcher =
+      | Scancode(int, Modifiers.t)
+      | Keycode(int, Modifiers.t);
+
+    type keyPress =
+      | Keydown(keyMatcher)
+      | Keyup(keyMatcher);
+
+    type t =
+      | Sequence(list(keyPress))
+      | AllKeysReleased;
+
+    let parse:
+      (
+        ~getKeycode: Key.t => option(int),
+        ~getScancode: Key.t => option(int),
+        string
+      ) =>
+      result(t, string);
+  };
+  
   type t;
 
   type uniqueId;
@@ -66,6 +88,8 @@ module Make = (Config: {
                }) => {
   type command = Config.command;
   type context = Config.context;
+
+  module Matcher = Matcher;
 
   type effect =
     | Execute(command)

@@ -51,6 +51,13 @@ let getScancode =
   fun
   | _ => None;
 
+module Input = EditorInput.Make({
+  type command = unit;
+  type context = unit;
+});
+
+module Matcher = Input.Matcher;
+
 let defaultParse = Matcher.parse(~getKeycode, ~getScancode);
 
 let modifiersControl = {...Modifiers.none, control: true};

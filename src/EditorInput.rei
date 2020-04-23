@@ -44,28 +44,6 @@ module Modifiers: {
   let equals: (t, t) => bool;
 };
 
-module Matcher: {
-  type keyMatcher =
-    | Scancode(int, Modifiers.t)
-    | Keycode(int, Modifiers.t);
-
-  type keyPress =
-    | Keydown(keyMatcher)
-    | Keyup(keyMatcher);
-
-  type t =
-    | Sequence(list(keyPress))
-    | AllKeysReleased;
-
-  let parse:
-    (
-      ~getKeycode: Key.t => option(int),
-      ~getScancode: Key.t => option(int),
-      string
-    ) =>
-    result(t, string);
-};
-
 module KeyPress: {
   type t = {
     scancode: int,
@@ -81,6 +59,29 @@ module KeyPress: {
 module type Input = {
   type command;
   type context;
+
+  module Matcher: {
+    type keyMatcher =
+      | Scancode(int, Modifiers.t)
+      | Keycode(int, Modifiers.t);
+
+    type keyPress =
+      | Keydown(keyMatcher)
+      | Keyup(keyMatcher);
+
+    type t =
+      | Sequence(list(keyPress))
+      | AllKeysReleased;
+
+    let parse:
+      (
+        ~getKeycode: Key.t => option(int),
+        ~getScancode: Key.t => option(int),
+        string
+      ) =>
+      result(t, string);
+  };
+
 
   type t;
 
