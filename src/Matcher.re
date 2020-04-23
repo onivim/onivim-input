@@ -1,11 +1,13 @@
-
-module Make = (Config: {
-  let getKeycode: Key.t => option(int);
-  let getScancode: Key.t => option(int);
-}) => {
+module Make =
+       (
+         Config: {
+           let getKeycode: Key.t => option(int);
+           let getScancode: Key.t => option(int);
+         },
+       ) => {
   let getKeycode = Config.getKeycode;
   let getScancode = Config.getScancode;
-  
+
   type keyMatcher =
     | Scancode(int, Modifiers.t)
     | Keycode(int, Modifiers.t);
@@ -20,10 +22,11 @@ module Make = (Config: {
 
   type sequence = list(t);
 
-  let parse = (str) => {
+  let parse = str => {
     let parse = lexbuf =>
       switch (Matcher_parser.main(Matcher_lexer.token, lexbuf)) {
-      | exception Matcher_lexer.Error => Error("Error parsing binding: " ++ str)
+      | exception Matcher_lexer.Error =>
+        Error("Error parsing binding: " ++ str)
       | exception (Matcher_lexer.UnrecognizedModifier(m)) =>
         Error("Unrecognized modifier:" ++ m ++ " in: " ++ str)
       | exception Matcher_parser.Error =>
@@ -38,7 +41,8 @@ module Make = (Config: {
       let rec loop = (mods, modList) =>
         switch (modList) {
         | [] => mods
-        | [Control, ...tail] => loop(Modifiers.{...mods, control: true}, tail)
+        | [Control, ...tail] =>
+          loop(Modifiers.{...mods, control: true}, tail)
         | [Shift, ...tail] => loop(Modifiers.{...mods, shift: true}, tail)
         | [Alt, ...tail] => loop(Modifiers.{...mods, alt: true}, tail)
         | [Meta, ...tail] => loop(Modifiers.{...mods, meta: true}, tail)

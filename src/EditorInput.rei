@@ -73,13 +73,8 @@ module type Input = {
       | Sequence(list(keyPress))
       | AllKeysReleased;
 
-    let parse:
-      (
-        string
-      ) =>
-      result(t, string);
+    let parse: string => result(t, string);
   };
-
 
   type t;
 
@@ -119,11 +114,13 @@ module type Input = {
 };
 
 module Make:
-  (Context: {
-     type command;
-     type context;
-     
-     let getKeycode: Key.t => option(int);
-     let getScancode: Key.t => option(int);
-   }) =>
+  (
+    Context: {
+      type command;
+      type context;
+
+      let getKeycode: Key.t => option(int);
+      let getScancode: Key.t => option(int);
+    },
+  ) =>
    Input with type command = Context.command and type context = Context.context;

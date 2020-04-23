@@ -26,13 +26,9 @@ module type Input = {
       | Sequence(list(keyPress))
       | AllKeysReleased;
 
-    let parse:
-      (
-        string
-      ) =>
-      result(t, string);
+    let parse: string => result(t, string);
   };
-  
+
   type t;
 
   type uniqueId;
@@ -80,23 +76,27 @@ module KeyDownId = {
   };
 };
 
-module Make = (Config: {
-                 type command;
-                 type context;
+module Make =
+       (
+         Config: {
+           type command;
+           type context;
 
-                 let getScancode: Key.t => option(int);
-                 let getKeycode: Key.t => option(int);
-               }) => {
+           let getScancode: Key.t => option(int);
+           let getKeycode: Key.t => option(int);
+         },
+       ) => {
   type command = Config.command;
   type context = Config.context;
 
   let getScancode = Config.getScancode;
   let getKeycode = Config.getKeycode;
 
-  module Matcher = Matcher.Make({
-    let getScancode = Config.getScancode;
-    let getKeycode = Config.getKeycode;
-  });
+  module Matcher =
+    Matcher.Make({
+      let getScancode = Config.getScancode;
+      let getKeycode = Config.getKeycode;
+    });
 
   type effect =
     | Execute(command)

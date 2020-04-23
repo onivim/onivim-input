@@ -15,8 +15,8 @@ module Input =
     type command = string;
     type context = bool;
 
-    let getKeycode = (_) => None;
-    let getScancode = (_) => None;
+    let getKeycode = _ => None;
+    let getScancode = _ => None;
   });
 
 describe("EditorInput", ({describe, _}) => {
