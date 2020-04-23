@@ -75,8 +75,6 @@ module type Input = {
 
     let parse:
       (
-        ~getKeycode: Key.t => option(int),
-        ~getScancode: Key.t => option(int),
         string
       ) =>
       result(t, string);
@@ -124,5 +122,8 @@ module Make:
   (Context: {
      type command;
      type context;
+     
+     let getKeycode: Key.t => option(int);
+     let getScancode: Key.t => option(int);
    }) =>
    Input with type command = Context.command and type context = Context.context;

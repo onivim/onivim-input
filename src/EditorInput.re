@@ -28,8 +28,6 @@ module type Input = {
 
     let parse:
       (
-        ~getKeycode: Key.t => option(int),
-        ~getScancode: Key.t => option(int),
         string
       ) =>
       result(t, string);
@@ -85,11 +83,20 @@ module KeyDownId = {
 module Make = (Config: {
                  type command;
                  type context;
+
+                 let getScancode: Key.t => option(int);
+                 let getKeycode: Key.t => option(int);
                }) => {
   type command = Config.command;
   type context = Config.context;
 
-  module Matcher = Matcher;
+  let getScancode = Config.getScancode;
+  let getKeycode = Config.getKeycode;
+
+  module Matcher = Matcher.Make({
+    let getScancode = Config.getScancode;
+    let getKeycode = Config.getKeycode;
+  });
 
   type effect =
     | Execute(command)

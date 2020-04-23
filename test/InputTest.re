@@ -14,6 +14,9 @@ module Input =
   EditorInput.Make({
     type command = string;
     type context = bool;
+
+    let getKeycode = (_) => None;
+    let getScancode = (_) => None;
   });
 
 describe("EditorInput", ({describe, _}) => {
