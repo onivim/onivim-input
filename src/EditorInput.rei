@@ -3,16 +3,6 @@ module Key: {
     | Character(char)
     | Function(int)
     | NumpadDigit(int)
-    | GreaterThan
-    | LeftParen
-    | LessThan
-    | Equals
-    | Minus
-    | Percent
-    | Pipe
-    | Plus
-    | RightParen
-    | Underscore
     | Escape
     | Down
     | Up

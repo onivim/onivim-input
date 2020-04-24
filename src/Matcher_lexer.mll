@@ -29,7 +29,7 @@ let white = [' ' '\t']+
 let alpha = ['a' - 'z' 'A' - 'Z']
 let modifier = alpha+ ['-' '+']
 
-let binding = ['a'-'z' 'A'-'Z' '0'-'9' '`' '-' '=' '[' ']' '\\' ';' '\'' ',' '.' '/']
+let binding = ['a'-'z' 'A'-'Z' '0'-'9' '`' '-' '=' '[' ']' '\\' ';' '\'' ',' '.' '/' '(' ')' '|' '_' '%' '+']
 
 rule token = parse
 | modifier as m
@@ -64,22 +64,13 @@ rule token = parse
 | "del" { BINDING (Delete) }
 | "delete" { BINDING (Delete) }
 | "bs" { BINDING (Backspace) }
-| "lt" { BINDING (LessThan) }
-| "gt" { BINDING (GreaterThan) }
-| "minus" { BINDING (Minus) }
-| "plus" { BINDING (Plus) }
-| "(" { BINDING (LeftParen) }
-| ")" { BINDING (RightParen) }
-| "|" { BINDING (Pipe) }
-| "_" { BINDING (Underscore) }
-| "%" { BINDING (Percent) }
-| "+" { BINDING (Plus) }
-| "-" { BINDING (Minus) }
-| "=" { BINDING (Equals) }
-| "\\<" { BINDING (LessThan) }
-| "\\>" { BINDING (GreaterThan) }
-| "equals" { BINDING (Equals) }
-| "=" { BINDING (Equals) }
+| "lt" { BINDING (Character('<')) }
+| "\\<" { BINDING (Character('<')) }
+| "gt" { BINDING (Character('>')) }
+| "\\>" { BINDING (Character('>')) }
+| "minus" { BINDING (Character('-')) }
+| "plus" { BINDING (Character('+')) }
+| "equals" { BINDING (Character('=')) }
 | "backspace" { BINDING (Backspace) }
 | "capslock" { BINDING (CapsLock) }
 | "insert" { BINDING (Insert) }

@@ -2,16 +2,6 @@ type t =
   | Character(char)
   | Function(int)
   | NumpadDigit(int)
-  | GreaterThan
-  | LeftParen
-  | LessThan
-  | Equals
-  | Minus
-  | Percent
-  | Pipe
-  | Plus
-  | RightParen
-  | Underscore
   | Escape
   | Down
   | Up
@@ -41,16 +31,6 @@ let toString =
   | Character(c) => Printf.sprintf("Character(%c)", c)
   | Function(digit) => Printf.sprintf("Function(%d)", digit)
   | NumpadDigit(digit) => Printf.sprintf("Numpad(%d)", digit)
-  | GreaterThan => "Greater"
-  | LeftParen => "LeftParen"
-  | LessThan => "Less"
-  | Minus => "Minus"
-  | Percent => "Percent"
-  | Pipe => "Pipe"
-  | Plus => "Plus"
-  | Equals => "Equals"
-  | RightParen => "RightParen"
-  | Underscore => "Underscore"
   | Escape => "Escape"
   | Down => "Down"
   | Up => "Up"
