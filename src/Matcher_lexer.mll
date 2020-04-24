@@ -76,8 +76,8 @@ rule token = parse
 | "+" { BINDING (Plus) }
 | "-" { BINDING (Minus) }
 | "=" { BINDING (Equals) }
-| "//<" { BINDING (LessThan) }
-| "//>" { BINDING (GreaterThan) }
+| "\\<" { BINDING (LessThan) }
+| "\\>" { BINDING (GreaterThan) }
 | "equals" { BINDING (Equals) }
 | "=" { BINDING (Equals) }
 | "backspace" { BINDING (Backspace) }
