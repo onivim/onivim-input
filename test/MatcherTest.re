@@ -8,8 +8,6 @@ let getKeycode =
   | Key.Character('0') => Some(50)
   | Key.Character('9') => Some(59)
   | Key.Character('`') => Some(60)
-  | Key.Character('-') => Some(61)
-  | Key.Character('=') => Some(62)
   | Key.Character('[') => Some(63)
   | Key.Character(']') => Some(64)
   | Key.Character('\\') => Some(65)
@@ -45,6 +43,16 @@ let getKeycode =
   | NumpadSubtract => Some(148)
   | NumpadDecimal => Some(149)
   | NumpadDivide => Some(150)
+  | Key.GreaterThan => Some(151)
+  | Key.LessThan => Some(152)
+  | Key.LeftParen => Some(153)
+  | Key.RightParen => Some(154)
+  | Key.Minus => Some(155)
+  | Key.Plus => Some(156)
+  | Key.Pipe => Some(157)
+  | Key.Underscore => Some(158)
+  | Key.Percent => Some(159)
+  | Key.Equals => Some(160)
   | _ => None;
 
 let getScancode =
@@ -69,8 +77,6 @@ describe("Matcher", ({describe, _}) => {
         ("0", Keydown(Keycode(50, Modifiers.none))),
         ("9", Keydown(Keycode(59, Modifiers.none))),
         ("`", Keydown(Keycode(60, Modifiers.none))),
-        ("-", Keydown(Keycode(61, Modifiers.none))),
-        ("=", Keydown(Keycode(62, Modifiers.none))),
         ("[", Keydown(Keycode(63, Modifiers.none))),
         ("]", Keydown(Keycode(64, Modifiers.none))),
         ("\\", Keydown(Keycode(65, Modifiers.none))),
@@ -110,6 +116,22 @@ describe("Matcher", ({describe, _}) => {
         ("numpad_subtract", Keydown(Keycode(148, Modifiers.none))),
         ("numpad_decimal", Keydown(Keycode(149, Modifiers.none))),
         ("numpad_divide", Keydown(Keycode(150, Modifiers.none))),
+        ("gt", Keydown(Keycode(151, Modifiers.none))),
+        ("//>", Keydown(Keycode(151, Modifiers.none))),
+        ("lt", Keydown(Keycode(152, Modifiers.none))),
+        ("//<", Keydown(Keycode(152, Modifiers.none))),
+        ("(", Keydown(Keycode(153, Modifiers.none))),
+        (")", Keydown(Keycode(154, Modifiers.none))),
+        ("minus", Keydown(Keycode(155, Modifiers.none))),
+        ("plus", Keydown(Keycode(156, Modifiers.none))),
+        ("+", Keydown(Keycode(156, Modifiers.none))),
+        ("Ctrl++", Keydown(Keycode(156, modifiersControl))),
+        ("<C-+>", Keydown(Keycode(156, modifiersControl))),
+        ("equals", Keydown(Keycode(160, Modifiers.none))),
+        ("=", Keydown(Keycode(160, Modifiers.none))),
+        ("|", Keydown(Keycode(157, Modifiers.none))),
+        ("_", Keydown(Keycode(158, Modifiers.none))),
+        ("%", Keydown(Keycode(159, Modifiers.none))),
       ];
 
       let runCase = case => {
